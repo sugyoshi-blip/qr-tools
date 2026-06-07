@@ -1,0 +1,2101 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>マンション管理サイト</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@300;400;600&family=Noto+Sans+JP:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --ink: #1a1a2e;
+      --ash: #4a4a6a;
+      --mist: #f5f3ef;
+      --paper: #fdfcfa;
+      --accent: #8b6f47;
+      --gold: #c8a96e;
+      --red: #c0392b;
+      --green: #27ae60;
+      --border: #ddd8d0;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Noto Sans JP', sans-serif;
+      background: var(--paper);
+      color: var(--ink);
+      min-height: 100vh;
+    }
+
+    /* ===== PAGES ===== */
+    .page { display: none; min-height: 100vh; }
+    .page.active { display: block; }
+
+    /* ===== TOP PAGE ===== */
+    #page-top {
+      background: var(--paper);
+    }
+
+    .top-hero {
+      background: linear-gradient(160deg, #1a1a2e 0%, #2d2d4e 60%, #3d3520 100%);
+      color: white;
+      padding: 0;
+      position: relative;
+      overflow: hidden;
+      min-height: 420px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+    }
+
+    .top-hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    }
+
+    .hero-content {
+      position: relative;
+      padding: 60px 40px 50px;
+    }
+
+    .hero-kana {
+      font-size: 12px;
+      letter-spacing: 4px;
+      color: var(--gold);
+      text-transform: uppercase;
+      margin-bottom: 12px;
+      font-family: 'Noto Sans JP', sans-serif;
+      font-weight: 300;
+    }
+
+    .hero-title {
+      font-family: 'Noto Serif JP', serif;
+      font-size: clamp(28px, 5vw, 48px);
+      font-weight: 600;
+      letter-spacing: 2px;
+      line-height: 1.3;
+      margin-bottom: 16px;
+    }
+
+    .hero-subtitle {
+      font-size: 13px;
+      color: rgba(255,255,255,0.6);
+      letter-spacing: 2px;
+      font-weight: 300;
+    }
+
+    .hero-badge {
+      display: inline-block;
+      background: var(--gold);
+      color: var(--ink);
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 2px;
+      padding: 4px 12px;
+      margin-bottom: 20px;
+    }
+
+    /* Nav */
+    .top-nav {
+      background: white;
+      border-bottom: 1px solid var(--border);
+      padding: 0 40px;
+      display: flex;
+      gap: 0;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .top-nav a {
+      display: block;
+      padding: 16px 20px;
+      color: var(--ash);
+      text-decoration: none;
+      font-size: 13px;
+      letter-spacing: 1px;
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s;
+    }
+
+    .top-nav a:hover, .top-nav a.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+    }
+
+    /* Sections */
+    .top-section {
+      padding: 60px 40px;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .section-label {
+      font-size: 11px;
+      letter-spacing: 4px;
+      color: var(--gold);
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .section-title {
+      font-family: 'Noto Serif JP', serif;
+      font-size: 24px;
+      font-weight: 600;
+      margin-bottom: 30px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* Info grid */
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 24px;
+      margin-bottom: 40px;
+    }
+
+    .info-card {
+      background: white;
+      border: 1px solid var(--border);
+      padding: 28px 24px;
+      position: relative;
+    }
+
+    .info-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 3px;
+      height: 100%;
+      background: var(--gold);
+    }
+
+    .info-card h3 {
+      font-size: 12px;
+      letter-spacing: 2px;
+      color: var(--ash);
+      margin-bottom: 10px;
+      text-transform: uppercase;
+    }
+
+    .info-card p {
+      font-family: 'Noto Serif JP', serif;
+      font-size: 20px;
+      color: var(--ink);
+    }
+
+    .info-card .sub {
+      font-family: 'Noto Sans JP', sans-serif;
+      font-size: 12px;
+      color: var(--ash);
+      margin-top: 4px;
+    }
+
+    /* Notice */
+    .notice-list {
+      list-style: none;
+    }
+
+    .notice-item {
+      display: flex;
+      gap: 20px;
+      padding: 18px 0;
+      border-bottom: 1px solid var(--border);
+      align-items: flex-start;
+    }
+
+    .notice-date {
+      font-size: 12px;
+      color: var(--ash);
+      min-width: 80px;
+      padding-top: 2px;
+    }
+
+    .notice-tag {
+      font-size: 10px;
+      background: var(--accent);
+      color: white;
+      padding: 2px 8px;
+      letter-spacing: 1px;
+      min-width: 60px;
+      text-align: center;
+      height: 18px;
+      line-height: 14px;
+      margin-top: 2px;
+    }
+
+    .notice-tag.info { background: #3498db; }
+    .notice-tag.important { background: var(--red); }
+
+    .notice-text {
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--ink);
+    }
+
+    /* Parking CTA */
+    .parking-cta {
+      background: linear-gradient(135deg, #1a1a2e, #2d2d4e);
+      color: white;
+      padding: 50px 40px;
+      text-align: center;
+      margin: 0;
+    }
+
+    .parking-cta .cta-label {
+      font-size: 11px;
+      letter-spacing: 4px;
+      color: var(--gold);
+      margin-bottom: 12px;
+    }
+
+    .parking-cta h2 {
+      font-family: 'Noto Serif JP', serif;
+      font-size: 26px;
+      margin-bottom: 12px;
+    }
+
+    .parking-cta p {
+      font-size: 13px;
+      color: rgba(255,255,255,0.6);
+      margin-bottom: 30px;
+    }
+
+    .btn-main {
+      display: inline-block;
+      background: var(--gold);
+      color: var(--ink);
+      font-size: 14px;
+      font-weight: 500;
+      letter-spacing: 2px;
+      padding: 14px 40px;
+      cursor: pointer;
+      border: none;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .btn-main:hover {
+      background: #d4b47a;
+      transform: translateY(-1px);
+    }
+
+    /* Footer */
+    .top-footer {
+      background: var(--ink);
+      color: rgba(255,255,255,0.4);
+      text-align: center;
+      padding: 30px;
+      font-size: 12px;
+      letter-spacing: 1px;
+    }
+
+    /* ===== LOGIN PAGE ===== */
+    #page-login {
+      background: linear-gradient(160deg, #1a1a2e 0%, #2d2d4e 100%);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+      min-height: 100vh;
+    }
+
+    .login-box {
+      background: white;
+      width: 100%;
+      max-width: 420px;
+      padding: 50px 40px;
+      position: relative;
+    }
+
+    .login-box::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--gold), var(--accent));
+    }
+
+    .login-logo {
+      text-align: center;
+      margin-bottom: 36px;
+    }
+
+    .login-logo h1 {
+      font-family: 'Noto Serif JP', serif;
+      font-size: 20px;
+      color: var(--ink);
+      margin-bottom: 6px;
+    }
+
+    .login-logo p {
+      font-size: 11px;
+      letter-spacing: 3px;
+      color: var(--ash);
+      text-transform: uppercase;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 11px;
+      letter-spacing: 2px;
+      color: var(--ash);
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .form-group input {
+      width: 100%;
+      border: 1px solid var(--border);
+      padding: 12px 16px;
+      font-size: 15px;
+      font-family: 'Noto Sans JP', sans-serif;
+      color: var(--ink);
+      outline: none;
+      transition: border-color 0.2s;
+      background: var(--mist);
+    }
+
+    .form-group input:focus {
+      border-color: var(--accent);
+      background: white;
+    }
+
+    .btn-login {
+      width: 100%;
+      background: var(--ink);
+      color: white;
+      border: none;
+      padding: 14px;
+      font-size: 14px;
+      font-family: 'Noto Sans JP', sans-serif;
+      letter-spacing: 3px;
+      cursor: pointer;
+      transition: background 0.2s;
+      margin-top: 8px;
+    }
+
+    .btn-login:hover { background: #2d2d4e; }
+
+    .login-back {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .login-back a {
+      font-size: 12px;
+      color: var(--ash);
+      text-decoration: none;
+      letter-spacing: 1px;
+    }
+
+    .login-back a:hover { color: var(--accent); }
+
+    .login-error {
+      background: #fde8e8;
+      border-left: 3px solid var(--red);
+      color: var(--red);
+      font-size: 13px;
+      padding: 12px 16px;
+      margin-bottom: 20px;
+      display: none;
+    }
+
+    /* ===== RESIDENT PAGE ===== */
+    #page-resident {
+      background: var(--mist);
+    }
+
+    .resident-header {
+      background: white;
+      border-bottom: 1px solid var(--border);
+      padding: 0 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .resident-header h1 {
+      font-family: 'Noto Serif JP', serif;
+      font-size: 18px;
+      padding: 20px 0;
+      color: var(--ink);
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .user-badge {
+      font-size: 12px;
+      color: var(--ash);
+      letter-spacing: 1px;
+    }
+
+    .btn-sm {
+      font-size: 12px;
+      color: var(--ash);
+      background: none;
+      border: 1px solid var(--border);
+      padding: 6px 16px;
+      cursor: pointer;
+      font-family: 'Noto Sans JP', sans-serif;
+      transition: all 0.2s;
+      letter-spacing: 1px;
+    }
+
+    .btn-sm:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .resident-body {
+      max-width: 700px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+
+    /* Parking card */
+    .parking-card {
+      background: white;
+      border: 1px solid var(--border);
+      margin-bottom: 24px;
+      overflow: hidden;
+    }
+
+    .parking-card-header {
+      background: linear-gradient(135deg, #1a1a2e, #2d2d4e);
+      color: white;
+      padding: 24px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .parking-card-header h2 {
+      font-family: 'Noto Serif JP', serif;
+      font-size: 16px;
+      font-weight: 400;
+    }
+
+    .parking-number-display {
+      font-family: 'Noto Serif JP', serif;
+      font-size: 48px;
+      font-weight: 600;
+      color: var(--gold);
+      letter-spacing: 2px;
+    }
+
+    .parking-number-label {
+      font-size: 11px;
+      letter-spacing: 3px;
+      color: rgba(255,255,255,0.5);
+      text-align: right;
+      margin-bottom: 4px;
+    }
+
+    .parking-card-body {
+      padding: 24px 30px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    .info-field label {
+      display: block;
+      font-size: 10px;
+      letter-spacing: 2px;
+      color: var(--ash);
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .info-field p {
+      font-size: 16px;
+      color: var(--ink);
+      font-weight: 500;
+    }
+
+    .status-badge {
+      display: inline-block;
+      font-size: 11px;
+      letter-spacing: 1px;
+      padding: 4px 12px;
+      background: #e8f5e9;
+      color: var(--green);
+      border: 1px solid #c8e6c9;
+    }
+
+    /* Password change */
+    .pw-card {
+      background: white;
+      border: 1px solid var(--border);
+      padding: 30px;
+    }
+
+    .pw-card h3 {
+      font-family: 'Noto Serif JP', serif;
+      font-size: 16px;
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .btn-accent {
+      background: var(--accent);
+      color: white;
+      border: none;
+      padding: 12px 30px;
+      font-size: 13px;
+      font-family: 'Noto Sans JP', sans-serif;
+      letter-spacing: 2px;
+      cursor: pointer;
+      transition: background 0.2s;
+      margin-top: 8px;
+    }
+
+    .btn-accent:hover { background: #7a5f38; }
+
+    .success-msg {
+      background: #e8f5e9;
+      border-left: 3px solid var(--green);
+      color: var(--green);
+      font-size: 13px;
+      padding: 12px 16px;
+      margin-bottom: 16px;
+      display: none;
+    }
+
+    .error-msg {
+      background: #fde8e8;
+      border-left: 3px solid var(--red);
+      color: var(--red);
+      font-size: 13px;
+      padding: 12px 16px;
+      margin-bottom: 16px;
+      display: none;
+    }
+
+    /* ===== ADMIN PAGE ===== */
+    #page-admin {
+      background: var(--mist);
+    }
+
+    .admin-header {
+      background: #1a1a2e;
+      color: white;
+      padding: 0 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .admin-header h1 {
+      font-family: 'Noto Serif JP', serif;
+      font-size: 18px;
+      padding: 20px 0;
+      color: white;
+    }
+
+    .admin-header .badge {
+      font-size: 10px;
+      letter-spacing: 2px;
+      background: var(--gold);
+      color: var(--ink);
+      padding: 3px 10px;
+      margin-left: 12px;
+    }
+
+    .admin-body {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+
+    /* Tabs */
+    .tabs {
+      display: flex;
+      gap: 0;
+      margin-bottom: 30px;
+      border-bottom: 2px solid var(--border);
+    }
+
+    .tab {
+      padding: 12px 24px;
+      font-size: 13px;
+      letter-spacing: 1px;
+      color: var(--ash);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -2px;
+      transition: all 0.2s;
+      font-family: 'Noto Sans JP', sans-serif;
+    }
+
+    .tab.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+      font-weight: 500;
+    }
+
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    /* Table */
+    .data-table {
+      width: 100%;
+      background: white;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    .data-table th {
+      background: var(--ink);
+      color: white;
+      padding: 12px 16px;
+      text-align: left;
+      font-size: 11px;
+      letter-spacing: 2px;
+      font-weight: 400;
+    }
+
+    .data-table td {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      color: var(--ink);
+    }
+
+    .data-table tr:hover td { background: var(--mist); }
+
+    .data-table input[type="text"] {
+      border: 1px solid var(--border);
+      padding: 6px 10px;
+      font-size: 13px;
+      font-family: 'Noto Sans JP', sans-serif;
+      width: 100px;
+      outline: none;
+    }
+
+    .data-table input[type="text"]:focus {
+      border-color: var(--accent);
+    }
+
+    .btn-save {
+      background: var(--ink);
+      color: white;
+      border: none;
+      padding: 6px 14px;
+      font-size: 12px;
+      font-family: 'Noto Sans JP', sans-serif;
+      cursor: pointer;
+      letter-spacing: 1px;
+    }
+
+    .btn-save:hover { background: #2d2d4e; }
+
+    .btn-danger {
+      background: none;
+      color: var(--red);
+      border: 1px solid var(--red);
+      padding: 5px 12px;
+      font-size: 12px;
+      font-family: 'Noto Sans JP', sans-serif;
+      cursor: pointer;
+    }
+
+    .admin-card {
+      background: white;
+      border: 1px solid var(--border);
+      padding: 30px;
+      margin-bottom: 24px;
+    }
+
+    .admin-card h3 {
+      font-family: 'Noto Serif JP', serif;
+      font-size: 16px;
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .add-form {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .add-form input, .add-form select {
+      border: 1px solid var(--border);
+      padding: 10px 14px;
+      font-size: 13px;
+      font-family: 'Noto Sans JP', sans-serif;
+      outline: none;
+      background: var(--mist);
+    }
+
+    .add-form input:focus, .add-form select:focus {
+      border-color: var(--accent);
+      background: white;
+    }
+
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 16px;
+      margin-bottom: 30px;
+    }
+
+    .stat-box {
+      background: white;
+      border: 1px solid var(--border);
+      padding: 20px;
+      text-align: center;
+    }
+
+    .stat-box .num {
+      font-family: 'Noto Serif JP', serif;
+      font-size: 36px;
+      color: var(--ink);
+    }
+
+    .stat-box .lbl {
+      font-size: 11px;
+      letter-spacing: 2px;
+      color: var(--ash);
+      margin-top: 4px;
+    }
+
+    /* Responsive */
+    @media (max-width: 600px) {
+      .hero-content { padding: 40px 20px 36px; }
+      .top-section { padding: 40px 20px; }
+      .parking-cta { padding: 40px 20px; }
+      .resident-header { padding: 0 20px; }
+      .parking-card-body { grid-template-columns: 1fr; }
+      .admin-body { padding: 20px 12px; }
+      .admin-header { padding: 0 20px; }
+      .top-nav { padding: 0 20px; }
+      .top-nav a { padding: 14px 12px; font-size: 12px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ==================== TOP PAGE ==================== -->
+<div id="page-top" class="page active">
+  <div class="top-hero">
+    <div class="hero-content">
+      <div class="hero-kana">Mansion Management Portal</div>
+      <div class="hero-badge">管理組合公式サイト</div>
+      <h1 class="hero-title">○○マンション<br>管理組合</h1>
+      <p class="hero-subtitle">6１号棟 〜 6８号棟　居住者向け情報サービス</p>
+    </div>
+  </div>
+
+  <nav class="top-nav">
+    <a href="#" class="active">ホーム</a>
+    <a href="#notice-section">お知らせ</a>
+    <a href="#facility-section">施設案内</a>
+    <a href="#parking-section">駐車場</a>
+  </nav>
+
+  <div class="top-section" id="home-section">
+    <div class="section-label">Overview</div>
+    <h2 class="section-title">マンション概要</h2>
+    <div class="info-grid">
+      <div class="info-card">
+        <h3>棟数</h3>
+        <p>８棟</p>
+        <div class="sub">61号棟〜68号棟</div>
+      </div>
+      <div class="info-card">
+        <h3>管理組合</h3>
+        <p>○○管理組合</p>
+        <div class="sub">理事会運営</div>
+      </div>
+      <div class="info-card">
+        <h3>駐車場</h3>
+        <p>管理中</p>
+        <div class="sub">号棟別割り当て</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="top-section" id="notice-section">
+    <div class="section-label">Notice</div>
+    <h2 class="section-title">お知らせ</h2>
+    <ul class="notice-list">
+      <li class="notice-item">
+        <span class="notice-date">2026.06.01</span>
+        <span class="notice-tag">重要</span>
+        <span class="notice-text">駐車票配布管理システムを開設しました。各居住者はログインして駐車場番号をご確認ください。</span>
+      </li>
+      <li class="notice-item">
+        <span class="notice-date">2026.05.20</span>
+        <span class="notice-tag info">案内</span>
+        <span class="notice-text">管理組合総会の議事録を掲示板に掲示しました。</span>
+      </li>
+      <li class="notice-item">
+        <span class="notice-date">2026.05.10</span>
+        <span class="notice-tag">重要</span>
+        <span class="notice-text">共用部分の清掃日程を更新しました。詳細は掲示板をご覧ください。</span>
+      </li>
+    </ul>
+  </div>
+
+  <div class="top-section" id="facility-section">
+    <div class="section-label">Facility</div>
+    <h2 class="section-title">施設案内</h2>
+    <div class="info-grid">
+      <div class="info-card">
+        <h3>管理事務所</h3>
+        <p style="font-size:14px">平日 9:00〜17:00</p>
+        <div class="sub">1号棟 1階</div>
+      </div>
+      <div class="info-card">
+        <h3>ゴミ置き場</h3>
+        <p style="font-size:14px">棟ごとに設置</p>
+        <div class="sub">分別ルールを守ること</div>
+      </div>
+      <div class="info-card">
+        <h3>来客駐車場</h3>
+        <p style="font-size:14px">事前申請制</p>
+        <div class="sub">管理事務所へ連絡</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Parking CTA -->
+  <div class="parking-cta" id="parking-section">
+    <div class="cta-label">Parking Management</div>
+    <h2>駐車票配布システム</h2>
+    <p>居住者専用ログインにより駐車場番号をご確認いただけます</p>
+    <button class="btn-main" onclick="showPage('login')">居住者ログイン →</button>
+  </div>
+
+  <footer class="top-footer">
+    <p>© 2026 ○○マンション管理組合　All Rights Reserved.</p>
+  </footer>
+</div>
+
+<!-- ==================== LOGIN PAGE ==================== -->
+<div id="page-login" class="page">
+  <div class="login-box">
+    <div class="login-logo">
+      <h1>居住者ポータル</h1>
+      <p>Resident Portal Login</p>
+    </div>
+    <div class="login-error" id="login-error">IDまたはパスワードが正しくありません</div>
+    <div class="form-group">
+      <label>居住者ID</label>
+      <input type="text" id="login-id" placeholder="例：6101AB" maxlength="8">
+    </div>
+    <div class="form-group">
+      <label>パスワード</label>
+      <input type="password" id="login-pw" placeholder="パスワードを入力">
+    </div>
+    <button class="btn-login" onclick="doLogin()">ログイン</button>
+    <div class="login-back">
+      <a href="#" onclick="showPage('top')">← トップページに戻る</a>
+    </div>
+    <div style="margin-top:24px;padding-top:20px;border-top:1px solid var(--border);text-align:center">
+      <p style="font-size:11px;color:var(--ash);margin-bottom:10px;letter-spacing:1px">データが表示されない場合</p>
+      <button onclick="resetAndReload()" style="font-size:12px;color:var(--red);background:none;border:1px solid var(--red);padding:6px 16px;cursor:pointer;font-family:inherit;letter-spacing:1px">データをリセットして再読込</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== RESIDENT PAGE ==================== -->
+<div id="page-resident" class="page">
+  <div class="resident-header">
+    <h1>居住者ポータル</h1>
+    <div class="header-right">
+      <span class="user-badge" id="resident-id-label"></span>
+      <button class="btn-sm" onclick="doLogout()">ログアウト</button>
+    </div>
+  </div>
+
+  <div class="resident-body">
+    <div class="parking-card">
+      <div class="parking-card-header">
+        <div>
+          <h2>割り当て駐車場</h2>
+        </div>
+        <div style="text-align:right">
+          <div class="parking-number-label">Parking No.</div>
+          <div class="parking-number-display" id="resident-parking-num">—</div>
+          <button id="qr-btn" onclick="showQR()" style="display:none;margin-top:8px;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.4);color:white;font-size:11px;letter-spacing:1px;padding:5px 12px;cursor:pointer;font-family:inherit">QRコード表示</button>
+        </div>
+      </div>
+      <div class="parking-card-body">
+        <div class="info-field">
+          <label>居住者ID</label>
+          <p id="resident-id-disp">—</p>
+        </div>
+        <div class="info-field">
+          <label>号棟・部屋番号</label>
+          <p id="resident-room-disp">—</p>
+        </div>
+        <div class="info-field">
+          <label>ステータス</label>
+          <span class="status-badge" id="resident-status-badge">割り当て済み</span>
+        </div>
+      </div>
+      <!-- 駐車場選択エリア -->
+      <div id="parking-select-area" style="display:none;padding:20px 30px;border-top:1px solid var(--border)">
+        <p style="font-size:13px;color:var(--ash);margin-bottom:14px">空き駐車場番号を選択してください：</p>
+        <div id="parking-slots-list" style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:16px"></div>
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+          <span style="font-size:13px;color:var(--ash)">選択中：</span>
+          <strong id="parking-selected-label" style="font-size:15px;color:var(--accent)">未選択</strong>
+          <button class="btn-accent" onclick="applyParkingSelection()" id="parking-apply-btn" style="display:none">この番号に申請する</button>
+        </div>
+      </div>
+      <div id="parking-change-area" style="padding:16px 30px;border-top:1px solid var(--border)">
+        <button class="btn-sm" onclick="toggleParkingSelect()" id="parking-change-btn">駐車場番号を選択・変更する</button>
+        <span id="parking-msg" style="font-size:13px;margin-left:12px;display:none"></span>
+      </div>
+    </div>
+
+    <div class="pw-card" id="pw-card-section">
+      <h3 style="display:flex;justify-content:space-between;align-items:center">
+        パスワード変更
+        <button class="btn-sm" onclick="togglePwForm()" id="pw-toggle-btn">変更する</button>
+      </h3>
+      <div id="pw-form" style="display:none">
+        <div class="success-msg" id="pw-success">パスワードを変更しました</div>
+        <div class="error-msg" id="pw-error">入力内容を確認してください</div>
+        <div class="form-group">
+          <label>現在のパスワード</label>
+          <input type="password" id="pw-current">
+        </div>
+        <div class="form-group">
+          <label>新しいパスワード（6文字以上）</label>
+          <input type="password" id="pw-new">
+        </div>
+        <div class="form-group">
+          <label>新しいパスワード（確認）</label>
+          <input type="password" id="pw-confirm">
+        </div>
+        <div style="display:flex;gap:12px;flex-wrap:wrap">
+          <button class="btn-accent" onclick="changePassword()">パスワードを変更する</button>
+          <button class="btn-sm" onclick="togglePwForm()">キャンセル</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== ADMIN PAGE ==================== -->
+<div id="page-admin" class="page">
+  <div class="admin-header">
+    <h1>管理者ページ <span class="badge">ADMIN</span></h1>
+    <div class="header-right">
+      <button class="btn-sm" style="border-color:rgba(255,255,255,0.3);color:rgba(255,255,255,0.7)" onclick="doLogout()">ログアウト</button>
+    </div>
+  </div>
+
+  <div class="admin-body">
+    <div class="stats-row" id="stats-row"></div>
+
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab('parking')">駐車場貸出状況</div>
+      <div class="tab" onclick="switchTab('residents')">居住者管理</div>
+      <div class="tab" onclick="switchTab('parkingmgmt')">駐車場設定</div>
+      <div class="tab" onclick="switchTab('admins')">管理者設定</div>
+    </div>
+
+    <!-- Parking status tab (default) -->
+    <div id="tab-parking" class="tab-content active">
+      <div class="admin-card">
+        <h3 style="display:flex;justify-content:space-between;align-items:center">
+          駐車場貸出状況
+          <span id="parking-count-label" style="font-size:12px;font-weight:400;color:var(--ash)"></span>
+        </h3>
+        <table class="data-table">
+          <thead>
+            <tr><th>駐車場番号</th><th>階</th><th>状態</th><th>使用者（号棟・部屋）</th></tr>
+          </thead>
+          <tbody id="parking-table-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Residents tab -->
+    <div id="tab-residents" class="tab-content">
+      <div class="admin-card">
+        <h3>居住者一覧</h3>
+        <div class="add-form" style="margin-bottom:16px">
+          <select id="filter-building" onchange="renderResidentTable()">
+            <option value="">号棟を選択してください</option>
+            <option value="61-12">61号棟（1・2列）</option>
+            <option value="61-34">61号棟（3・4列）</option>
+            <option value="62">62号棟</option>
+            <option value="63">63号棟</option>
+            <option value="64">64号棟</option>
+            <option value="65">65号棟</option>
+            <option value="66">66号棟</option>
+            <option value="67-12">67号棟（1・2列）</option>
+            <option value="67-34">67号棟（3・4列）</option>
+            <option value="67-56">67号棟（5・6列）</option>
+            <option value="68-123">68号棟（1・2・3列）</option>
+            <option value="68-45">68号棟（4・5列）</option>
+            <option value="68-67">68号棟（6・7列）</option>
+            <option value="68-89">68号棟（8・9列）</option>
+          </select>
+        </div>
+        <div id="resident-table-wrap">
+          <p style="color:var(--ash);font-size:13px;text-align:center;padding:20px">号棟を選択してください</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Parking management tab -->
+    <div id="tab-parkingmgmt" class="tab-content">
+      <div class="admin-card">
+        <h3>駐車場番号の追加</h3>
+        <div class="add-form">
+          <input type="text" id="parking-add-input" placeholder="例：1102 2103 3203" style="width:220px">
+          <button class="btn-accent" onclick="addParkingSlot()">追加</button>
+        </div>
+        <p style="font-size:11px;color:var(--ash);margin-top:-8px">※スペース区切りで複数まとめて追加できます</p>
+        <div class="success-msg" id="parking-add-success" style="margin-top:12px">駐車場番号を追加しました</div>
+      </div>
+      <div class="admin-card">
+        <h3>号棟別割り当て状況</h3>
+        <div id="parking-summary"></div>
+      </div>
+    </div>
+
+    <!-- Admins tab -->
+    <div id="tab-admins" class="tab-content">
+      <div class="admin-card">
+        <h3>管理者追加</h3>
+        <div class="add-form">
+          <input type="text" id="admin-add-id" placeholder="管理者ID" style="width:160px">
+          <input type="password" id="admin-add-pw" placeholder="パスワード" style="width:160px">
+          <button class="btn-accent" onclick="addAdmin()">追加</button>
+        </div>
+        <div class="success-msg" id="admin-add-success">管理者を追加しました</div>
+      </div>
+      <div class="admin-card">
+        <h3>管理者一覧</h3>
+        <table class="data-table">
+          <thead>
+            <tr><th>管理者ID</th><th>操作</th></tr>
+          </thead>
+          <tbody id="admin-table-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+
+// ===== QR CODE (Self-contained, Scannable) =====
+(function(g){
+function rsEcc(data, eccLen) {
+  var EXP = new Array(512), LOG = new Array(256);
+  EXP[0]=1;
+  for(var i=1;i<256;i++){var v=EXP[i-1]*2;if(v>=256)v^=285;EXP[i]=v;EXP[i+255]=v;LOG[v]=i;}
+  LOG[1]=0;
+  function mul(a,b){return a===0||b===0?0:EXP[(LOG[a]+LOG[b])%255];}
+  function gexp(n){return EXP[n%255];}
+  var gen=[1];
+  for(var i=0;i<eccLen;i++){
+    var gg=[1,gexp(i)];
+    var res=new Array(gen.length+gg.length-1).fill(0);
+    for(var j=0;j<gen.length;j++)for(var k=0;k<gg.length;k++)res[j+k]^=mul(gen[j],gg[k]);
+    gen=res;
+  }
+  var msg=data.concat(new Array(eccLen).fill(0));
+  for(var i=0;i<data.length;i++){
+    var coef=msg[i];
+    if(coef!==0)for(var j=1;j<gen.length;j++)msg[i+j]^=mul(gen[j],coef);
+  }
+  return msg.slice(data.length);
+}
+
+function qr(text){
+  var MC=33; // version 4, 33x33
+  var modules=[],isFn=[];
+  for(var r=0;r<MC;r++){modules.push(new Array(MC).fill(null));isFn.push(new Array(MC).fill(false));}
+  function sf(r,c,v){if(r>=0&&r<MC&&c>=0&&c<MC){modules[r][c]=v;isFn[r][c]=true;}}
+  function finder(row,col){
+    for(var dr=-1;dr<=7;dr++)for(var dc=-1;dc<=7;dc++){
+      if(row+dr<0||MC<=row+dr||col+dc<0||MC<=col+dc)continue;
+      var v=(0<=dr&&dr<=6&&(dc===0||dc===6))||(0<=dc&&dc<=6&&(dr===0||dr===6))||(2<=dr&&dr<=4&&2<=dc&&dc<=4);
+      sf(row+dr,col+dc,v);
+    }
+  }
+  finder(0,0);finder(MC-7,0);finder(0,MC-7);
+  for(var i=8;i<MC-8;i++){sf(6,i,i%2===0);sf(i,6,i%2===0);}
+  var AP=26;
+  for(var dr=-2;dr<=2;dr++)for(var dc=-2;dc<=2;dc++)sf(AP+dr,AP+dc,Math.max(Math.abs(dr),Math.abs(dc))!==1);
+  var fR=[0,1,2,3,4,5,7,8,8,8,8,8,8,8,7],fC=[8,8,8,8,8,8,8,8,7,5,4,3,2,1,0];
+  for(var i=0;i<15;i++){sf(fR[i],fC[i],false);}
+  sf(MC-8,8,true);
+
+  // UTF-8 encode
+  var bytes=[];
+  for(var i=0;i<text.length;i++){
+    var c=text.charCodeAt(i);
+    if(c<128)bytes.push(c);
+    else if(c<2048){bytes.push(192|(c>>6));bytes.push(128|(c&63));}
+    else{bytes.push(224|(c>>12));bytes.push(128|((c>>6)&63));bytes.push(128|(c&63));}
+  }
+
+  // Data codewords: v4-M = 50
+  var DC=50,EC=18;
+  var bits=[];
+  function pb(v,l){for(var i=l-1;i>=0;i--)bits.push((v>>i)&1);}
+  pb(4,4);pb(bytes.length,8);
+  for(var i=0;i<bytes.length;i++)pb(bytes[i],8);
+  for(var i=0;i<4&&bits.length<DC*8;i++)bits.push(0);
+  while(bits.length%8!==0)bits.push(0);
+  var pi=0;while(bits.length<DC*8){pb(pi%2===0?0xEC:0x11,8);pi++;}
+  var dcB=[];
+  for(var i=0;i<DC;i++){var b=0;for(var j=0;j<8;j++)b=(b<<1)|(bits[i*8+j]||0);dcB.push(b);}
+  var eccB=rsEcc(dcB,EC);
+  var all=dcB.concat(eccB);
+  var allBits=[];
+  for(var i=0;i<all.length;i++)for(var j=7;j>=0;j--)allBits.push((all[i]>>j)&1);
+
+  var di=0;
+  for(var c=MC-1;c>=1;c-=2){
+    if(c===6)c--;
+    var upward=((MC-1-c)/2%2===0);
+    for(var cnt=0;cnt<MC;cnt++){
+      var row=upward?(MC-1-cnt):cnt;
+      for(var cc=0;cc<2;cc++){
+        var col=c-cc;
+        if(!isFn[row][col])modules[row][col]=di<allBits.length?allBits[di++]===1:false;
+      }
+    }
+  }
+  // mask 0
+  for(var r=0;r<MC;r++)for(var c=0;c<MC;c++)if(!isFn[r][c]&&(r+c)%2===0)modules[r][c]=!modules[r][c];
+  // format ECC-M mask0 = 101010000010010
+  var fmt=[1,0,1,0,1,0,0,0,0,0,1,0,0,1,0];
+  for(var i=0;i<15;i++){
+    modules[fR[i]][fC[i]]=fmt[i]===1;
+    if(i<8)modules[MC-1-i][8]=fmt[i]===1;
+    else modules[8][MC-15+i]=fmt[i]===1;
+  }
+  return{modules:modules,size:MC};
+}
+
+g.makeQRCanvas=function(text,cellSize){
+  cellSize=cellSize||6;
+  var qd=qr(text);
+  var sz=qd.size,mg=cellSize*2;
+  var cv=document.createElement('canvas');
+  cv.width=sz*cellSize+mg*2;cv.height=cv.width;
+  var ctx=cv.getContext('2d');
+  ctx.fillStyle='#ffffff';ctx.fillRect(0,0,cv.width,cv.height);
+  ctx.fillStyle='#1a1a2e';
+  for(var r=0;r<sz;r++)for(var c=0;c<sz;c++)if(qd.modules[r][c])ctx.fillRect(mg+c*cellSize,mg+r*cellSize,cellSize,cellSize);
+  return cv;
+};
+})(window);
+
+// ===== DATA LAYER =====
+const DATA_VERSION = 3; // 全号棟追加版
+
+function getData() {
+  const d = localStorage.getItem('mansion_data');
+  if (d) {
+    try {
+      const parsed = JSON.parse(d);
+      // バージョンが古い場合は初期データで上書き（居住者のみリセット、駐車場・パスワード変更は保持しない）
+      if (!parsed.version || parsed.version < DATA_VERSION) {
+        localStorage.removeItem('mansion_data');
+        // 古いデータは破棄して初期データを返す
+      } else {
+        return parsed;
+      }
+    } catch(e) { localStorage.removeItem('mansion_data'); }
+  }
+  // Initial data with 63号棟 residents
+  const init = {
+    residents: {
+            "63101CJ": { building:"63", room:"101", parking:"", password:"631017238", pwChanged:false },
+      "63102PV": { building:"63", room:"102", parking:"", password:"631026710", pwChanged:false },
+      "63103AB": { building:"63", room:"103", parking:"", password:"631034005", pwChanged:false },
+      "63104JX": { building:"63", room:"104", parking:"", password:"631049386", pwChanged:false },
+      "63105QQ": { building:"63", room:"105", parking:"", password:"631053460", pwChanged:false },
+      "63106PA": { building:"63", room:"106", parking:"", password:"631069720", pwChanged:false },
+      "63201KU": { building:"63", room:"201", parking:"", password:"632011778", pwChanged:false },
+      "63202ZY": { building:"63", room:"202", parking:"", password:"632026029", pwChanged:false },
+      "63203HN": { building:"63", room:"203", parking:"", password:"632031470", pwChanged:false },
+      "63204LR": { building:"63", room:"204", parking:"", password:"632049580", pwChanged:false },
+      "63205DM": { building:"63", room:"205", parking:"", password:"632058294", pwChanged:false },
+      "63206DN": { building:"63", room:"206", parking:"", password:"632062587", pwChanged:false },
+      "63301NK": { building:"63", room:"301", parking:"", password:"633019057", pwChanged:false },
+      "63302XG": { building:"63", room:"302", parking:"", password:"633029193", pwChanged:false },
+      "63303LM": { building:"63", room:"303", parking:"", password:"633034247", pwChanged:false },
+      "63304EF": { building:"63", room:"304", parking:"", password:"633042568", pwChanged:false },
+      "63305PG": { building:"63", room:"305", parking:"", password:"633054935", pwChanged:false },
+      "63306RE": { building:"63", room:"306", parking:"", password:"633066687", pwChanged:false },
+      "63401DK": { building:"63", room:"401", parking:"", password:"634011419", pwChanged:false },
+      "63402TP": { building:"63", room:"402", parking:"", password:"634021623", pwChanged:false },
+      "63403RW": { building:"63", room:"403", parking:"", password:"634032183", pwChanged:false },
+      "63404UQ": { building:"63", room:"404", parking:"", password:"634042691", pwChanged:false },
+      "63405UT": { building:"63", room:"405", parking:"", password:"634057185", pwChanged:false },
+      "63406VW": { building:"63", room:"406", parking:"", password:"634064435", pwChanged:false },
+      "61101QB": { building:"61", room:"101", parking:"", password:"611012421", pwChanged:false },
+      "61102ZW": { building:"61", room:"102", parking:"", password:"611025652", pwChanged:false },
+      "61103TH": { building:"61", room:"103", parking:"", password:"611033649", pwChanged:false },
+      "61104VS": { building:"61", room:"104", parking:"", password:"611046173", pwChanged:false },
+      "61105PB": { building:"61", room:"105", parking:"", password:"611052888", pwChanged:false },
+      "61106LZ": { building:"61", room:"106", parking:"", password:"611065315", pwChanged:false },
+      "61107EV": { building:"61", room:"107", parking:"", password:"611072203", pwChanged:false },
+      "61108MA": { building:"61", room:"108", parking:"", password:"611081370", pwChanged:false },
+      "61201SK": { building:"61", room:"201", parking:"", password:"612013368", pwChanged:false },
+      "61202VP": { building:"61", room:"202", parking:"", password:"612025283", pwChanged:false },
+      "61203MF": { building:"61", room:"203", parking:"", password:"612031392", pwChanged:false },
+      "61204AM": { building:"61", room:"204", parking:"", password:"612042114", pwChanged:false },
+      "61205EB": { building:"61", room:"205", parking:"", password:"612052907", pwChanged:false },
+      "61206PH": { building:"61", room:"206", parking:"", password:"612064903", pwChanged:false },
+      "61207DC": { building:"61", room:"207", parking:"", password:"612075447", pwChanged:false },
+      "61208TW": { building:"61", room:"208", parking:"", password:"612088861", pwChanged:false },
+      "61301GS": { building:"61", room:"301", parking:"", password:"613019430", pwChanged:false },
+      "61302HW": { building:"61", room:"302", parking:"", password:"613023174", pwChanged:false },
+      "61303BD": { building:"61", room:"303", parking:"", password:"613039586", pwChanged:false },
+      "61304YB": { building:"61", room:"304", parking:"", password:"613041873", pwChanged:false },
+      "61305CT": { building:"61", room:"305", parking:"", password:"613055608", pwChanged:false },
+      "61306SJ": { building:"61", room:"306", parking:"", password:"613064637", pwChanged:false },
+      "61307ZW": { building:"61", room:"307", parking:"", password:"613071907", pwChanged:false },
+      "61308JM": { building:"61", room:"308", parking:"", password:"613082072", pwChanged:false },
+      "61401EH": { building:"61", room:"401", parking:"", password:"614014685", pwChanged:false },
+      "61402FY": { building:"61", room:"402", parking:"", password:"614026465", pwChanged:false },
+      "61403LY": { building:"61", room:"403", parking:"", password:"614031609", pwChanged:false },
+      "61404CQ": { building:"61", room:"404", parking:"", password:"614045863", pwChanged:false },
+      "61405NQ": { building:"61", room:"405", parking:"", password:"614054049", pwChanged:false },
+      "61406XH": { building:"61", room:"406", parking:"", password:"614064019", pwChanged:false },
+      "61407HY": { building:"61", room:"407", parking:"", password:"614071712", pwChanged:false },
+      "61408QX": { building:"61", room:"408", parking:"", password:"614089383", pwChanged:false },
+      "61501VS": { building:"61", room:"501", parking:"", password:"615016009", pwChanged:false },
+      "61502ZG": { building:"61", room:"502", parking:"", password:"615024846", pwChanged:false },
+      "61503TL": { building:"61", room:"503", parking:"", password:"615038091", pwChanged:false },
+      "61504PP": { building:"61", room:"504", parking:"", password:"615048197", pwChanged:false },
+      "61505ZY": { building:"61", room:"505", parking:"", password:"615057694", pwChanged:false },
+      "61506XH": { building:"61", room:"506", parking:"", password:"615062747", pwChanged:false },
+      "61507MR": { building:"61", room:"507", parking:"", password:"615073071", pwChanged:false },
+      "61508EZ": { building:"61", room:"508", parking:"", password:"615083554", pwChanged:false },
+      "62101GC": { building:"62", room:"101", parking:"", password:"621011958", pwChanged:false },
+      "62102DF": { building:"62", room:"102", parking:"", password:"621022325", pwChanged:false },
+      "62103PK": { building:"62", room:"103", parking:"", password:"621039990", pwChanged:false },
+      "62104WD": { building:"62", room:"104", parking:"", password:"621049896", pwChanged:false },
+      "62201AJ": { building:"62", room:"201", parking:"", password:"622019753", pwChanged:false },
+      "62202XX": { building:"62", room:"202", parking:"", password:"622024055", pwChanged:false },
+      "62203RQ": { building:"62", room:"203", parking:"", password:"622031981", pwChanged:false },
+      "62204QC": { building:"62", room:"204", parking:"", password:"622049748", pwChanged:false },
+      "62301RY": { building:"62", room:"301", parking:"", password:"623015582", pwChanged:false },
+      "62302TJ": { building:"62", room:"302", parking:"", password:"623021000", pwChanged:false },
+      "62303NT": { building:"62", room:"303", parking:"", password:"623035522", pwChanged:false },
+      "62304MB": { building:"62", room:"304", parking:"", password:"623045269", pwChanged:false },
+      "62401DF": { building:"62", room:"401", parking:"", password:"624013405", pwChanged:false },
+      "62402SY": { building:"62", room:"402", parking:"", password:"624021561", pwChanged:false },
+      "62403FZ": { building:"62", room:"403", parking:"", password:"624037794", pwChanged:false },
+      "62404CM": { building:"62", room:"404", parking:"", password:"624045076", pwChanged:false },
+      "62501LN": { building:"62", room:"501", parking:"", password:"625017178", pwChanged:false },
+      "62502UR": { building:"62", room:"502", parking:"", password:"625027242", pwChanged:false },
+      "62503PX": { building:"62", room:"503", parking:"", password:"625032533", pwChanged:false },
+      "62504KT": { building:"62", room:"504", parking:"", password:"625041821", pwChanged:false },
+      "64101JH": { building:"64", room:"101", parking:"", password:"641018160", pwChanged:false },
+      "64102JR": { building:"64", room:"102", parking:"", password:"641026285", pwChanged:false },
+      "64103KH": { building:"64", room:"103", parking:"", password:"641033023", pwChanged:false },
+      "64104PT": { building:"64", room:"104", parking:"", password:"641046268", pwChanged:false },
+      "64105GX": { building:"64", room:"105", parking:"", password:"641058710", pwChanged:false },
+      "64106BD": { building:"64", room:"106", parking:"", password:"641068788", pwChanged:false },
+      "64201DW": { building:"64", room:"201", parking:"", password:"642016465", pwChanged:false },
+      "64202XN": { building:"64", room:"202", parking:"", password:"642027868", pwChanged:false },
+      "64203AV": { building:"64", room:"203", parking:"", password:"642039951", pwChanged:false },
+      "64204GC": { building:"64", room:"204", parking:"", password:"642048414", pwChanged:false },
+      "64205DL": { building:"64", room:"205", parking:"", password:"642056815", pwChanged:false },
+      "64206GB": { building:"64", room:"206", parking:"", password:"642065453", pwChanged:false },
+      "64301UT": { building:"64", room:"301", parking:"", password:"643017241", pwChanged:false },
+      "64302YB": { building:"64", room:"302", parking:"", password:"643026272", pwChanged:false },
+      "64303VD": { building:"64", room:"303", parking:"", password:"643036520", pwChanged:false },
+      "64304AH": { building:"64", room:"304", parking:"", password:"643048253", pwChanged:false },
+      "64305UH": { building:"64", room:"305", parking:"", password:"643057101", pwChanged:false },
+      "64306FT": { building:"64", room:"306", parking:"", password:"643064308", pwChanged:false },
+      "64401RE": { building:"64", room:"401", parking:"", password:"644015318", pwChanged:false },
+      "64402BD": { building:"64", room:"402", parking:"", password:"644029056", pwChanged:false },
+      "64403ZR": { building:"64", room:"403", parking:"", password:"644038239", pwChanged:false },
+      "64404JX": { building:"64", room:"404", parking:"", password:"644044964", pwChanged:false },
+      "64405NV": { building:"64", room:"405", parking:"", password:"644058551", pwChanged:false },
+      "64406CF": { building:"64", room:"406", parking:"", password:"644068009", pwChanged:false },
+      "65101VH": { building:"65", room:"101", parking:"", password:"651013789", pwChanged:false },
+      "65102JN": { building:"65", room:"102", parking:"", password:"651028025", pwChanged:false },
+      "65103RK": { building:"65", room:"103", parking:"", password:"651035101", pwChanged:false },
+      "65104XC": { building:"65", room:"104", parking:"", password:"651048524", pwChanged:false },
+      "65105EK": { building:"65", room:"105", parking:"", password:"651055131", pwChanged:false },
+      "65106WZ": { building:"65", room:"106", parking:"", password:"651069732", pwChanged:false },
+      "65201JL": { building:"65", room:"201", parking:"", password:"652015391", pwChanged:false },
+      "65202ML": { building:"65", room:"202", parking:"", password:"652021396", pwChanged:false },
+      "65203TM": { building:"65", room:"203", parking:"", password:"652039002", pwChanged:false },
+      "65204VQ": { building:"65", room:"204", parking:"", password:"652046872", pwChanged:false },
+      "65205PQ": { building:"65", room:"205", parking:"", password:"652051199", pwChanged:false },
+      "65206FN": { building:"65", room:"206", parking:"", password:"652065629", pwChanged:false },
+      "65301UF": { building:"65", room:"301", parking:"", password:"653017759", pwChanged:false },
+      "65302EZ": { building:"65", room:"302", parking:"", password:"653027551", pwChanged:false },
+      "65303RA": { building:"65", room:"303", parking:"", password:"653035373", pwChanged:false },
+      "65304DV": { building:"65", room:"304", parking:"", password:"653047931", pwChanged:false },
+      "65305YB": { building:"65", room:"305", parking:"", password:"653057617", pwChanged:false },
+      "65306XK": { building:"65", room:"306", parking:"", password:"653065359", pwChanged:false },
+      "65401BT": { building:"65", room:"401", parking:"", password:"654012362", pwChanged:false },
+      "65402PZ": { building:"65", room:"402", parking:"", password:"654021623", pwChanged:false },
+      "65403DV": { building:"65", room:"403", parking:"", password:"654034261", pwChanged:false },
+      "65404EE": { building:"65", room:"404", parking:"", password:"654045783", pwChanged:false },
+      "65405ED": { building:"65", room:"405", parking:"", password:"654053968", pwChanged:false },
+      "65406GM": { building:"65", room:"406", parking:"", password:"654064073", pwChanged:false },
+      "65501FK": { building:"65", room:"501", parking:"", password:"655011389", pwChanged:false },
+      "65502RQ": { building:"65", room:"502", parking:"", password:"655028580", pwChanged:false },
+      "65503NG": { building:"65", room:"503", parking:"", password:"655032686", pwChanged:false },
+      "65504CG": { building:"65", room:"504", parking:"", password:"655046982", pwChanged:false },
+      "65505YS": { building:"65", room:"505", parking:"", password:"655054879", pwChanged:false },
+      "65506RD": { building:"65", room:"506", parking:"", password:"655066378", pwChanged:false },
+      "66101VB": { building:"66", room:"101", parking:"", password:"661013244", pwChanged:false },
+      "66102YZ": { building:"66", room:"102", parking:"", password:"661022173", pwChanged:false },
+      "66103HL": { building:"66", room:"103", parking:"", password:"661034423", pwChanged:false },
+      "66104SJ": { building:"66", room:"104", parking:"", password:"661049407", pwChanged:false },
+      "66201PN": { building:"66", room:"201", parking:"", password:"662014670", pwChanged:false },
+      "66202KR": { building:"66", room:"202", parking:"", password:"662028101", pwChanged:false },
+      "66203PV": { building:"66", room:"203", parking:"", password:"662031597", pwChanged:false },
+      "66204ZD": { building:"66", room:"204", parking:"", password:"662042355", pwChanged:false },
+      "66301ST": { building:"66", room:"301", parking:"", password:"663017767", pwChanged:false },
+      "66302NS": { building:"66", room:"302", parking:"", password:"663023125", pwChanged:false },
+      "66303KC": { building:"66", room:"303", parking:"", password:"663033286", pwChanged:false },
+      "66304HU": { building:"66", room:"304", parking:"", password:"663044978", pwChanged:false },
+      "66401PS": { building:"66", room:"401", parking:"", password:"664019131", pwChanged:false },
+      "66402HJ": { building:"66", room:"402", parking:"", password:"664028877", pwChanged:false },
+      "66403SU": { building:"66", room:"403", parking:"", password:"664037344", pwChanged:false },
+      "66404NF": { building:"66", room:"404", parking:"", password:"664043146", pwChanged:false },
+      "66501CN": { building:"66", room:"501", parking:"", password:"665014215", pwChanged:false },
+      "66502NT": { building:"66", room:"502", parking:"", password:"665026657", pwChanged:false },
+      "66503ET": { building:"66", room:"503", parking:"", password:"665039274", pwChanged:false },
+      "66504LG": { building:"66", room:"504", parking:"", password:"665048639", pwChanged:false },
+      "67101XZ": { building:"67", room:"101", parking:"", password:"671018069", pwChanged:false },
+      "67102KD": { building:"67", room:"102", parking:"", password:"671028267", pwChanged:false },
+      "67103UN": { building:"67", room:"103", parking:"", password:"671036003", pwChanged:false },
+      "67104JV": { building:"67", room:"104", parking:"", password:"671045549", pwChanged:false },
+      "67105KG": { building:"67", room:"105", parking:"", password:"671057160", pwChanged:false },
+      "67106GR": { building:"67", room:"106", parking:"", password:"671065498", pwChanged:false },
+      "67201LN": { building:"67", room:"201", parking:"", password:"672019053", pwChanged:false },
+      "67202TF": { building:"67", room:"202", parking:"", password:"672029643", pwChanged:false },
+      "67203SH": { building:"67", room:"203", parking:"", password:"672035222", pwChanged:false },
+      "67204HD": { building:"67", room:"204", parking:"", password:"672047444", pwChanged:false },
+      "67205BL": { building:"67", room:"205", parking:"", password:"672058032", pwChanged:false },
+      "67206PJ": { building:"67", room:"206", parking:"", password:"672062459", pwChanged:false },
+      "67301YJ": { building:"67", room:"301", parking:"", password:"673017127", pwChanged:false },
+      "67302XC": { building:"67", room:"302", parking:"", password:"673025360", pwChanged:false },
+      "67303EJ": { building:"67", room:"303", parking:"", password:"673034648", pwChanged:false },
+      "67304KF": { building:"67", room:"304", parking:"", password:"673045485", pwChanged:false },
+      "67305WZ": { building:"67", room:"305", parking:"", password:"673053625", pwChanged:false },
+      "67306XP": { building:"67", room:"306", parking:"", password:"673069682", pwChanged:false },
+      "67401KF": { building:"67", room:"401", parking:"", password:"674011646", pwChanged:false },
+      "67402KQ": { building:"67", room:"402", parking:"", password:"674024315", pwChanged:false },
+      "67403XX": { building:"67", room:"403", parking:"", password:"674039095", pwChanged:false },
+      "67404CT": { building:"67", room:"404", parking:"", password:"674044420", pwChanged:false },
+      "67405HQ": { building:"67", room:"405", parking:"", password:"674057952", pwChanged:false },
+      "67406LB": { building:"67", room:"406", parking:"", password:"674061565", pwChanged:false },
+      "67501JT": { building:"67", room:"501", parking:"", password:"675017872", pwChanged:false },
+      "67502XB": { building:"67", room:"502", parking:"", password:"675025472", pwChanged:false },
+      "67503BT": { building:"67", room:"503", parking:"", password:"675036032", pwChanged:false },
+      "67504LQ": { building:"67", room:"504", parking:"", password:"675041376", pwChanged:false },
+      "67505QA": { building:"67", room:"505", parking:"", password:"675052655", pwChanged:false },
+      "67506ZE": { building:"67", room:"506", parking:"", password:"675066150", pwChanged:false },
+      "67601DY": { building:"67", room:"601", parking:"", password:"676011955", pwChanged:false },
+      "67602AG": { building:"67", room:"602", parking:"", password:"676029432", pwChanged:false },
+      "67603UX": { building:"67", room:"603", parking:"", password:"676038905", pwChanged:false },
+      "67604PK": { building:"67", room:"604", parking:"", password:"676049713", pwChanged:false },
+      "67605VA": { building:"67", room:"605", parking:"", password:"676058662", pwChanged:false },
+      "67606DV": { building:"67", room:"606", parking:"", password:"676066563", pwChanged:false },
+      "67701JM": { building:"67", room:"701", parking:"", password:"677016719", pwChanged:false },
+      "67702LQ": { building:"67", room:"702", parking:"", password:"677025847", pwChanged:false },
+      "67703ZA": { building:"67", room:"703", parking:"", password:"677035465", pwChanged:false },
+      "67704LK": { building:"67", room:"704", parking:"", password:"677042049", pwChanged:false },
+      "67705XQ": { building:"67", room:"705", parking:"", password:"677058600", pwChanged:false },
+      "67706ZS": { building:"67", room:"706", parking:"", password:"677066508", pwChanged:false },
+      "67801BF": { building:"67", room:"801", parking:"", password:"678012774", pwChanged:false },
+      "67802UY": { building:"67", room:"802", parking:"", password:"678024451", pwChanged:false },
+      "67803LY": { building:"67", room:"803", parking:"", password:"678031719", pwChanged:false },
+      "67804NH": { building:"67", room:"804", parking:"", password:"678046025", pwChanged:false },
+      "67805SW": { building:"67", room:"805", parking:"", password:"678058335", pwChanged:false },
+      "67806ST": { building:"67", room:"806", parking:"", password:"678068567", pwChanged:false },
+      "68101SU": { building:"68", room:"101", parking:"", password:"681014073", pwChanged:false },
+      "68102EE": { building:"68", room:"102", parking:"", password:"681021687", pwChanged:false },
+      "68103JG": { building:"68", room:"103", parking:"", password:"681035421", pwChanged:false },
+      "68201ZQ": { building:"68", room:"201", parking:"", password:"682014246", pwChanged:false },
+      "68202LJ": { building:"68", room:"202", parking:"", password:"682021800", pwChanged:false },
+      "68203ZJ": { building:"68", room:"203", parking:"", password:"682038878", pwChanged:false },
+      "68204AA": { building:"68", room:"204", parking:"", password:"682043115", pwChanged:false },
+      "68205SP": { building:"68", room:"205", parking:"", password:"682058768", pwChanged:false },
+      "68206WW": { building:"68", room:"206", parking:"", password:"682064522", pwChanged:false },
+      "68207WC": { building:"68", room:"207", parking:"", password:"682078020", pwChanged:false },
+      "68208BG": { building:"68", room:"208", parking:"", password:"682084456", pwChanged:false },
+      "68209WK": { building:"68", room:"209", parking:"", password:"682097191", pwChanged:false },
+      "68210GW": { building:"68", room:"210", parking:"", password:"682105322", pwChanged:false },
+      "68211TT": { building:"68", room:"211", parking:"", password:"682115386", pwChanged:false },
+      "68212AD": { building:"68", room:"212", parking:"", password:"682125417", pwChanged:false },
+      "68213SP": { building:"68", room:"213", parking:"", password:"682133871", pwChanged:false },
+      "68214HY": { building:"68", room:"214", parking:"", password:"682148648", pwChanged:false },
+      "68215TX": { building:"68", room:"215", parking:"", password:"682156703", pwChanged:false },
+      "68301XJ": { building:"68", room:"301", parking:"", password:"683018836", pwChanged:false },
+      "68302GG": { building:"68", room:"302", parking:"", password:"683025263", pwChanged:false },
+      "68303VL": { building:"68", room:"303", parking:"", password:"683033859", pwChanged:false },
+      "68304YU": { building:"68", room:"304", parking:"", password:"683048379", pwChanged:false },
+      "68305UL": { building:"68", room:"305", parking:"", password:"683054244", pwChanged:false },
+      "68306DG": { building:"68", room:"306", parking:"", password:"683066242", pwChanged:false },
+      "68307DP": { building:"68", room:"307", parking:"", password:"683076860", pwChanged:false },
+      "68308SU": { building:"68", room:"308", parking:"", password:"683082146", pwChanged:false },
+      "68309QY": { building:"68", room:"309", parking:"", password:"683093868", pwChanged:false },
+      "68310MK": { building:"68", room:"310", parking:"", password:"683107882", pwChanged:false },
+      "68311QH": { building:"68", room:"311", parking:"", password:"683119083", pwChanged:false },
+      "68312NV": { building:"68", room:"312", parking:"", password:"683121591", pwChanged:false },
+      "68313MZ": { building:"68", room:"313", parking:"", password:"683138093", pwChanged:false },
+      "68314FM": { building:"68", room:"314", parking:"", password:"683141020", pwChanged:false },
+      "68315YF": { building:"68", room:"315", parking:"", password:"683151811", pwChanged:false },
+      "68401PZ": { building:"68", room:"401", parking:"", password:"684012818", pwChanged:false },
+      "68402WT": { building:"68", room:"402", parking:"", password:"684024768", pwChanged:false },
+      "68403AC": { building:"68", room:"403", parking:"", password:"684032121", pwChanged:false },
+      "68404ZR": { building:"68", room:"404", parking:"", password:"684043088", pwChanged:false },
+      "68405QX": { building:"68", room:"405", parking:"", password:"684053219", pwChanged:false },
+      "68406LU": { building:"68", room:"406", parking:"", password:"684068770", pwChanged:false },
+      "68407CB": { building:"68", room:"407", parking:"", password:"684075063", pwChanged:false },
+      "68408FL": { building:"68", room:"408", parking:"", password:"684081956", pwChanged:false },
+      "68409KL": { building:"68", room:"409", parking:"", password:"684096742", pwChanged:false },
+      "68410EK": { building:"68", room:"410", parking:"", password:"684109570", pwChanged:false },
+      "68411ZX": { building:"68", room:"411", parking:"", password:"684112505", pwChanged:false },
+      "68412MZ": { building:"68", room:"412", parking:"", password:"684122062", pwChanged:false },
+      "68413RT": { building:"68", room:"413", parking:"", password:"684136925", pwChanged:false },
+      "68414QR": { building:"68", room:"414", parking:"", password:"684148091", pwChanged:false },
+      "68415ZH": { building:"68", room:"415", parking:"", password:"684153800", pwChanged:false },
+      "68501PP": { building:"68", room:"501", parking:"", password:"685011189", pwChanged:false },
+      "68502SD": { building:"68", room:"502", parking:"", password:"685023980", pwChanged:false },
+      "68503TT": { building:"68", room:"503", parking:"", password:"685031168", pwChanged:false },
+      "68504QE": { building:"68", room:"504", parking:"", password:"685044980", pwChanged:false },
+      "68505FE": { building:"68", room:"505", parking:"", password:"685059692", pwChanged:false },
+      "68506QH": { building:"68", room:"506", parking:"", password:"685062652", pwChanged:false },
+      "68507SP": { building:"68", room:"507", parking:"", password:"685078167", pwChanged:false },
+      "68508SX": { building:"68", room:"508", parking:"", password:"685087532", pwChanged:false },
+      "68509VA": { building:"68", room:"509", parking:"", password:"685095692", pwChanged:false },
+      "68510MD": { building:"68", room:"510", parking:"", password:"685107936", pwChanged:false },
+      "68511PE": { building:"68", room:"511", parking:"", password:"685116986", pwChanged:false },
+      "68512SY": { building:"68", room:"512", parking:"", password:"685127435", pwChanged:false },
+      "68513CM": { building:"68", room:"513", parking:"", password:"685136907", pwChanged:false },
+      "68514QH": { building:"68", room:"514", parking:"", password:"685142209", pwChanged:false },
+      "68515ML": { building:"68", room:"515", parking:"", password:"685154618", pwChanged:false },
+      "68601RA": { building:"68", room:"601", parking:"", password:"686018811", pwChanged:false },
+      "68602BA": { building:"68", room:"602", parking:"", password:"686027781", pwChanged:false },
+      "68603FZ": { building:"68", room:"603", parking:"", password:"686037877", pwChanged:false },
+      "68604ED": { building:"68", room:"604", parking:"", password:"686048627", pwChanged:false },
+      "68605DU": { building:"68", room:"605", parking:"", password:"686051316", pwChanged:false },
+      "68606JR": { building:"68", room:"606", parking:"", password:"686064045", pwChanged:false },
+      "68607HM": { building:"68", room:"607", parking:"", password:"686073331", pwChanged:false },
+      "68608DL": { building:"68", room:"608", parking:"", password:"686089623", pwChanged:false },
+      "68609WJ": { building:"68", room:"609", parking:"", password:"686099472", pwChanged:false },
+      "68610HS": { building:"68", room:"610", parking:"", password:"686105161", pwChanged:false },
+      "68611ED": { building:"68", room:"611", parking:"", password:"686115115", pwChanged:false },
+      "68612ZN": { building:"68", room:"612", parking:"", password:"686127003", pwChanged:false },
+      "68613LT": { building:"68", room:"613", parking:"", password:"686133052", pwChanged:false },
+      "68614FZ": { building:"68", room:"614", parking:"", password:"686143651", pwChanged:false },
+      "68615JM": { building:"68", room:"615", parking:"", password:"686154216", pwChanged:false },
+      "68701UT": { building:"68", room:"701", parking:"", password:"687011680", pwChanged:false },
+      "68702XX": { building:"68", room:"702", parking:"", password:"687028661", pwChanged:false },
+      "68703NF": { building:"68", room:"703", parking:"", password:"687037514", pwChanged:false },
+      "68704QQ": { building:"68", room:"704", parking:"", password:"687044156", pwChanged:false },
+      "68705DN": { building:"68", room:"705", parking:"", password:"687054133", pwChanged:false },
+      "68706ZQ": { building:"68", room:"706", parking:"", password:"687066854", pwChanged:false },
+      "68707KN": { building:"68", room:"707", parking:"", password:"687072361", pwChanged:false },
+      "68708GL": { building:"68", room:"708", parking:"", password:"687084634", pwChanged:false },
+      "68709DT": { building:"68", room:"709", parking:"", password:"687098896", pwChanged:false },
+      "68710KE": { building:"68", room:"710", parking:"", password:"687106880", pwChanged:false },
+      "68711BA": { building:"68", room:"711", parking:"", password:"687114570", pwChanged:false },
+      "68712SL": { building:"68", room:"712", parking:"", password:"687126764", pwChanged:false },
+      "68713KG": { building:"68", room:"713", parking:"", password:"687137131", pwChanged:false },
+      "68714WL": { building:"68", room:"714", parking:"", password:"687141867", pwChanged:false },
+      "68715CP": { building:"68", room:"715", parking:"", password:"687158930", pwChanged:false },
+      "68801FB": { building:"68", room:"801", parking:"", password:"688018951", pwChanged:false },
+      "68802DB": { building:"68", room:"802", parking:"", password:"688023717", pwChanged:false },
+      "68803CE": { building:"68", room:"803", parking:"", password:"688033116", pwChanged:false },
+      "68804UZ": { building:"68", room:"804", parking:"", password:"688045327", pwChanged:false },
+      "68805QY": { building:"68", room:"805", parking:"", password:"688051907", pwChanged:false },
+      "68806RY": { building:"68", room:"806", parking:"", password:"688065934", pwChanged:false },
+      "68807ZZ": { building:"68", room:"807", parking:"", password:"688078401", pwChanged:false },
+      "68808CU": { building:"68", room:"808", parking:"", password:"688082431", pwChanged:false },
+      "68809AK": { building:"68", room:"809", parking:"", password:"688097631", pwChanged:false },
+      "68810PT": { building:"68", room:"810", parking:"", password:"688109014", pwChanged:false },
+      "68811XL": { building:"68", room:"811", parking:"", password:"688115936", pwChanged:false },
+      "68812PK": { building:"68", room:"812", parking:"", password:"688126624", pwChanged:false },
+      "68813FM": { building:"68", room:"813", parking:"", password:"688131202", pwChanged:false },
+      "68814VP": { building:"68", room:"814", parking:"", password:"688143396", pwChanged:false },
+      "68815JT": { building:"68", room:"815", parking:"", password:"688159350", pwChanged:false },
+      "68901XC": { building:"68", room:"901", parking:"", password:"689011836", pwChanged:false },
+      "68902WL": { building:"68", room:"902", parking:"", password:"689022294", pwChanged:false },
+      "68903UT": { building:"68", room:"903", parking:"", password:"689033473", pwChanged:false },
+      "68904WS": { building:"68", room:"904", parking:"", password:"689046288", pwChanged:false },
+      "68905XG": { building:"68", room:"905", parking:"", password:"689054964", pwChanged:false },
+      "68906EM": { building:"68", room:"906", parking:"", password:"689061419", pwChanged:false },
+      "68907LB": { building:"68", room:"907", parking:"", password:"689078226", pwChanged:false },
+      "68908FS": { building:"68", room:"908", parking:"", password:"689084714", pwChanged:false },
+      "68909SA": { building:"68", room:"909", parking:"", password:"689097076", pwChanged:false }
+    },
+    parkingSlots: {
+      "1102": { assignedTo: "" },
+      "2103": { assignedTo: "" },
+      "3203": { assignedTo: "" }
+    },
+    admins: { 'admin': { password: 'admin1234', isAdmin: true } },
+    version: DATA_VERSION
+  };
+  saveData(init);
+  return init;
+}
+
+function saveData(data) {
+  data.version = DATA_VERSION;
+  localStorage.setItem('mansion_data', JSON.stringify(data));
+}
+
+// Generate random 2-letter suffix
+function randomLetters() {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
+  return chars[Math.floor(Math.random()*chars.length)] + chars[Math.floor(Math.random()*chars.length)];
+}
+
+// Generate initial password: building+room+4digits
+function initPassword(building, room) {
+  const n = Math.floor(1000 + Math.random() * 9000);
+  return building + room + n;
+}
+
+// ===== SESSION =====
+let currentUser = null;
+let isAdmin = false;
+
+// ===== PAGE NAVIGATION =====
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => {
+    p.classList.remove('active');
+    p.style.display = 'none';
+  });
+  const pg = document.getElementById('page-' + name);
+  if (!pg) return;
+  pg.classList.add('active');
+  pg.style.display = (name === 'login') ? 'flex' : 'block';
+  // Clear login fields when showing login page
+  if (name === 'login') {
+    document.getElementById('login-id').value = '';
+    document.getElementById('login-pw').value = '';
+    document.getElementById('login-error').style.display = 'none';
+  }
+  window.scrollTo(0, 0);
+}
+
+// ===== LOGIN =====
+function doLogin() {
+  const idRaw = document.getElementById('login-id').value.trim();
+  const pw = document.getElementById('login-pw').value;
+  const data = getData();
+  const errEl = document.getElementById('login-error');
+
+  // Admin check (case-sensitive, no transform)
+  const id = idRaw;
+  if (data.admins[id] && data.admins[id].password === pw) {
+    currentUser = id;
+    isAdmin = true;
+    errEl.style.display = 'none';
+    showPage('admin');
+    renderAdmin();
+    return;
+  }
+
+  // Resident check (ID is stored uppercase)
+  const idUpper = idRaw.toUpperCase();
+  if (data.residents[idUpper] && data.residents[idUpper].password === pw) {
+    currentUser = idUpper;
+    isAdmin = false;
+    errEl.style.display = 'none';
+    renderResident(idUpper);
+    showPage('resident');
+    return;
+  }
+
+  errEl.style.display = 'block';
+}
+
+function doLogout() {
+  currentUser = null;
+  isAdmin = false;
+  document.getElementById('login-id').value = '';
+  document.getElementById('login-pw').value = '';
+  showPage('top');
+}
+
+// ===== RESIDENT PAGE =====
+function renderResident(id) {
+  const data = getData();
+  const r = data.residents[id];
+  document.getElementById('resident-id-label').textContent = id;
+  document.getElementById('resident-id-disp').textContent = id;
+  document.getElementById('resident-parking-num').textContent = r.parking || '未設定';
+  document.getElementById('resident-room-disp').textContent = r.building + '号棟 ' + r.room + '号室';
+  document.getElementById('resident-status-badge').textContent = r.parking ? '割り当て済み' : '未割り当て';
+  document.getElementById('resident-status-badge').style.background = r.parking ? '#e8f5e9' : '#fff3e0';
+  document.getElementById('resident-status-badge').style.color = r.parking ? 'var(--green)' : '#e65100';
+  // 選択UIリセット
+  document.getElementById('parking-select-area').style.display = 'none';
+  document.getElementById('parking-change-btn').textContent = r.parking ? '駐車場番号を変更する' : '駐車場番号を選択する';
+  document.getElementById('qr-btn').style.display = r.parking ? 'inline-block' : 'none';
+  document.getElementById('parking-msg').style.display = 'none';
+  // Reset pw fields
+  ['pw-current','pw-new','pw-confirm'].forEach(i => document.getElementById(i).value = '');
+  document.getElementById('pw-success').style.display = 'none';
+  document.getElementById('pw-error').style.display = 'none';
+}
+
+function toggleParkingSelect() {
+  const area = document.getElementById('parking-select-area');
+  const isOpen = area.style.display !== 'none';
+  if (isOpen) {
+    area.style.display = 'none';
+    return;
+  }
+  // 空き駐車場を列挙
+  const data = getData();
+  const slots = data.parkingSlots || {};
+  const r = data.residents[currentUser];
+  const currentParking = r.parking;
+  const available = Object.entries(slots)
+    .filter(([num, v]) => !v.assignedTo || v.assignedTo === currentUser)
+    .sort((a,b)=>a[0].localeCompare(b[0]));
+
+  if (available.length === 0) {
+    const msg = document.getElementById('parking-msg');
+    msg.textContent = '現在空き駐車場がありません。管理者にお問い合わせください。';
+    msg.style.color = 'var(--red)';
+    msg.style.display = 'inline';
+    return;
+  }
+
+  let selectedNum = currentParking || '';
+  const listEl = document.getElementById('parking-slots-list');
+  const labelEl = document.getElementById('parking-selected-label');
+  const applyBtn = document.getElementById('parking-apply-btn');
+
+  function renderSlots() {
+    listEl.innerHTML = available.map(([num]) => {
+      const floor = num.charAt(0);
+      const isSelected = num === selectedNum;
+      return `<button onclick="selectParkingNum('${num}')"
+        style="padding:10px 16px;border:2px solid ${isSelected?'var(--accent)':'var(--border)'};
+        background:${isSelected?'var(--accent)':'white'};color:${isSelected?'white':'var(--ink)'};
+        font-size:14px;font-family:inherit;cursor:pointer;border-radius:2px;min-width:80px">
+        <div style="font-weight:600">${num}</div>
+        <div style="font-size:10px;opacity:0.8">${floor}階</div>
+      </button>`;
+    }).join('');
+    labelEl.textContent = selectedNum || '未選択';
+    applyBtn.style.display = selectedNum ? 'inline-block' : 'none';
+  }
+
+  window._parkingSelected = selectedNum;
+  window.selectParkingNum = function(num) {
+    selectedNum = num;
+    window._parkingSelected = num;
+    renderSlots();
+  };
+
+  renderSlots();
+  area.style.display = 'block';
+}
+
+function applyParkingSelection() {
+  const num = window._parkingSelected;
+  if (!num) return;
+  const data = getData();
+  const r = data.residents[currentUser];
+  const slots = data.parkingSlots || {};
+
+  // 以前の駐車場を解放
+  if (r.parking && slots[r.parking]) {
+    slots[r.parking].assignedTo = '';
+  }
+  // 新しい駐車場を割り当て
+  r.parking = num;
+  if (slots[num]) slots[num].assignedTo = currentUser;
+  data.parkingSlots = slots;
+  saveData(data);
+
+  // UI更新
+  document.getElementById('resident-parking-num').textContent = num;
+  document.getElementById('resident-status-badge').textContent = '割り当て済み';
+  document.getElementById('resident-status-badge').style.background = '#e8f5e9';
+  document.getElementById('resident-status-badge').style.color = 'var(--green)';
+  document.getElementById('parking-select-area').style.display = 'none';
+  document.getElementById('parking-change-btn').textContent = '駐車場番号を変更する';
+  document.getElementById('qr-btn').style.display = 'inline-block';
+  const msg = document.getElementById('parking-msg');
+  msg.textContent = '✓ 駐車場番号 ' + num + ' に設定しました';
+  msg.style.color = 'var(--green)';
+  msg.style.display = 'inline';
+}
+
+function togglePwForm() {
+  const form = document.getElementById('pw-form');
+  const btn = document.getElementById('pw-toggle-btn');
+  const isOpen = form.style.display !== 'none';
+  form.style.display = isOpen ? 'none' : 'block';
+  btn.textContent = isOpen ? '変更する' : 'キャンセル';
+  if (isOpen) {
+    ['pw-current','pw-new','pw-confirm'].forEach(i => document.getElementById(i).value = '');
+    document.getElementById('pw-success').style.display = 'none';
+    document.getElementById('pw-error').style.display = 'none';
+  }
+}
+
+function changePassword() {
+  const cur = document.getElementById('pw-current').value;
+  const nw = document.getElementById('pw-new').value;
+  const cf = document.getElementById('pw-confirm').value;
+  const succ = document.getElementById('pw-success');
+  const err = document.getElementById('pw-error');
+  const data = getData();
+  const r = data.residents[currentUser];
+
+  if (r.password !== cur) {
+    err.textContent = '現在のパスワードが正しくありません';
+    err.style.display = 'block'; succ.style.display = 'none'; return;
+  }
+  if (nw.length < 6) {
+    err.textContent = 'パスワードは6文字以上で設定してください';
+    err.style.display = 'block'; succ.style.display = 'none'; return;
+  }
+  if (nw !== cf) {
+    err.textContent = '新しいパスワードが一致しません';
+    err.style.display = 'block'; succ.style.display = 'none'; return;
+  }
+
+  r.password = nw;
+  r.pwChanged = true;
+  saveData(data);
+  succ.style.display = 'block';
+  err.style.display = 'none';
+  ['pw-current','pw-new','pw-confirm'].forEach(i => document.getElementById(i).value = '');
+  // フォームを閉じて完了メッセージを一時表示
+  setTimeout(() => {
+    document.getElementById('pw-form').style.display = 'none';
+    document.getElementById('pw-toggle-btn').textContent = '変更する';
+    document.getElementById('pw-success').style.display = 'none';
+  }, 2000);
+}
+
+// ===== ADMIN PAGE =====
+function renderAdmin() {
+  renderStats();
+  renderParkingTable();
+  renderParkingSummary();
+  renderAdminTable();
+}
+
+function renderStats() {
+  const data = getData();
+  const total = Object.keys(data.residents).length;
+  const changed = Object.values(data.residents).filter(r=>r.pwChanged).length;
+  const withParking = Object.values(data.residents).filter(r=>r.parking).length;
+  const slots = data.parkingSlots || {};
+  const totalSlots = Object.keys(slots).length;
+  const emptySlots = Object.values(slots).filter(s=>!s.assignedTo).length;
+  document.getElementById('stats-row').innerHTML = `
+    <div class="stat-box"><div class="num">${total}</div><div class="lbl">総居住者数</div></div>
+    <div class="stat-box"><div class="num">${withParking}</div><div class="lbl">駐車場割当済</div></div>
+    <div class="stat-box"><div class="num">${totalSlots}</div><div class="lbl">駐車場総数</div></div>
+    <div class="stat-box"><div class="num">${emptySlots}</div><div class="lbl">空き駐車場</div></div>
+  `;
+}
+
+// 号棟グループと部屋番号の定義
+const BUILDING_ROOMS = {
+  '61-12': { label:'61号棟（1・2列）', building:'61', rooms:['101','102','103','104','201','202','203','204','301','302','303','304','401','402','403','404','501','502','503','504'] },
+  '61-34': { label:'61号棟（3・4列）', building:'61', rooms:['105','106','107','108','205','206','207','208','305','306','307','308','405','406','407','408','505','506','507','508'] },
+  '62':    { label:'62号棟', building:'62', rooms:['101','102','103','104','201','202','203','204','301','302','303','304','401','402','403','404','501','502','503','504'] },
+  '63':    { label:'63号棟', building:'63', rooms:['101','102','103','104','105','106','201','202','203','204','205','206','301','302','303','304','305','306','401','402','403','404','405','406'] },
+  '64':    { label:'64号棟', building:'64', rooms:['101','102','103','104','105','106','201','202','203','204','205','206','301','302','303','304','305','306','401','402','403','404','405','406'] },
+  '65':    { label:'65号棟', building:'65', rooms:['101','102','103','104','105','106','201','202','203','204','205','206','301','302','303','304','305','306','401','402','403','404','405','406','501','502','503','504','505','506'] },
+  '66':    { label:'66号棟', building:'66', rooms:['101','102','103','104','201','202','203','204','301','302','303','304','401','402','403','404','501','502','503','504'] },
+  '67-12': { label:'67号棟（1・2列）', building:'67', rooms:['101','102','201','202','301','302','401','402','501','502','601','602','701','702','801','802'] },
+  '67-34': { label:'67号棟（3・4列）', building:'67', rooms:['103','104','203','204','303','304','403','404','503','504','603','604','703','704','803','804'] },
+  '67-56': { label:'67号棟（5・6列）', building:'67', rooms:['105','106','205','206','305','306','405','406','505','506','605','606','705','706','805','806'] },
+  '68-123':{ label:'68号棟（1・2・3列）', building:'68', rooms:['101','102','103','201','202','203','204','205','206','207','208','209','210','211','212','213','214','215','301','302','303','304','305','306','307','308','309','310','311','312','313','314','315'] },
+  '68-45': { label:'68号棟（4・5列）', building:'68', rooms:['401','402','403','404','405','406','407','408','409','410','411','412','413','414','415','501','502','503','504','505','506','507','508','509','510','511','512','513','514','515'] },
+  '68-67': { label:'68号棟（6・7列）', building:'68', rooms:['601','602','603','604','605','606','607','608','609','610','611','612','613','614','615','701','702','703','704','705','706','707','708','709','710','711','712','713','714','715'] },
+  '68-89': { label:'68号棟（8・9列）', building:'68', rooms:['801','802','803','804','805','806','807','808','809','810','811','812','813','814','815','901','902','903','904','905','906','907','908','909'] }
+};
+
+function renderResidentTable() {
+  const filterKey = document.getElementById('filter-building').value;
+  const wrap = document.getElementById('resident-table-wrap');
+  if (!filterKey) {
+    wrap.innerHTML = '<p style="color:var(--ash);font-size:13px;text-align:center;padding:20px">号棟を選択してください</p>';
+    return;
+  }
+  const data = getData();
+  const grp = BUILDING_ROOMS[filterKey];
+  if (!grp) return;
+
+  // 該当部屋のIDを検索
+  const rows = grp.rooms.map(room => {
+    // IDを逆引き（building+room+XX）
+    const matched = Object.entries(data.residents).find(([id,r]) => r.building === grp.building && r.room === room);
+    return { room, id: matched ? matched[0] : null, r: matched ? matched[1] : null };
+  });
+
+  wrap.innerHTML = `<table class="data-table">
+    <thead><tr>
+      <th>部屋</th><th>居住者ID</th><th>駐車場</th><th>PW</th><th>操作</th>
+    </tr></thead>
+    <tbody>${rows.map(({room, id, r}) => {
+      if (!id) return `<tr><td>${room}号室</td><td colspan="4" style="color:var(--ash);font-size:12px">未登録</td></tr>`;
+      return `<tr>
+        <td>${room}号室</td>
+        <td><strong>${id}</strong></td>
+        <td>${r.parking || '<span style="color:var(--ash)">未設定</span>'}</td>
+        <td>${r.pwChanged ? '<span style="color:var(--green)">変更済</span>' : '<span style="color:var(--ash)">初期</span>'}</td>
+        <td><button class="btn-save" onclick="resetPassword('${id}')">PW再設定</button></td>
+      </tr>`;
+    }).join('')}</tbody>
+  </table>`;
+}
+
+function resetPassword(id) {
+  const data = getData();
+  const r = data.residents[id];
+  if (!r) return;
+  if (!confirm(r.building + '号棟 ' + r.room + '号室 (' + id + ') のパスワードを再設定しますか？')) return;
+  const newPw = initPassword(r.building, r.room);
+  r.password = newPw;
+  r.pwChanged = false;
+  saveData(data);
+  alert('再設定完了\n居住者ID: ' + id + '\n新パスワード: ' + newPw + '\n\n居住者に伝えてください。');
+  renderResidentTable();
+}
+
+// ===== PARKING SLOTS MANAGEMENT =====
+function addParkingSlot() {
+  const raw = document.getElementById('parking-add-input').value.trim();
+  if (!raw) return;
+  const nums = raw.split(/[\s,、]+/).map(s=>s.trim()).filter(s=>s);
+  const data = getData();
+  if (!data.parkingSlots) data.parkingSlots = {};
+  let added = 0;
+  nums.forEach(num => {
+    if (!data.parkingSlots[num]) {
+      data.parkingSlots[num] = { assignedTo: '' };
+      added++;
+    }
+  });
+  saveData(data);
+  document.getElementById('parking-add-input').value = '';
+  const msg = document.getElementById('parking-add-success');
+  msg.textContent = added + '件の駐車場番号を追加しました';
+  msg.style.display = 'block';
+  setTimeout(()=>msg.style.display='none', 3000);
+  renderParkingTable();
+  renderParkingSummary();
+  renderStats();
+}
+
+function deleteParkingSlot(num) {
+  if (!confirm('駐車場番号 ' + num + ' を削除しますか？使用中の場合、住民の割り当ても解除されます。')) return;
+  const data = getData();
+  // 使用中なら住民側もクリア
+  if (data.parkingSlots[num] && data.parkingSlots[num].assignedTo) {
+    const uid = data.parkingSlots[num].assignedTo;
+    if (data.residents[uid]) data.residents[uid].parking = '';
+  }
+  delete data.parkingSlots[num];
+  saveData(data);
+  renderParkingTable();
+  renderParkingSummary();
+  renderStats();
+}
+
+function renderParkingTable() {
+  const data = getData();
+  const slots = data.parkingSlots || {};
+  const tbody = document.getElementById('parking-table-body');
+  const entries = Object.entries(slots).sort((a,b)=>a[0].localeCompare(b[0]));
+  const total = entries.length;
+  const used = entries.filter(([,v])=>v.assignedTo).length;
+  document.getElementById('parking-count-label').textContent = `全${total}台 / 貸出中${used}台 / 空き${total-used}台`;
+
+  if (entries.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--ash);padding:20px">駐車場番号が登録されていません</td></tr>';
+    return;
+  }
+  tbody.innerHTML = entries.map(([num, v]) => {
+    const floor = num.charAt(0);
+    const isUsed = !!v.assignedTo;
+    let userLabel = '空き';
+    if (isUsed && data.residents[v.assignedTo]) {
+      const r = data.residents[v.assignedTo];
+      userLabel = r.building + '号棟 ' + r.room + '号室';
+    } else if (isUsed) {
+      userLabel = v.assignedTo;
+    }
+    return `<tr>
+      <td><strong style="font-size:16px">${num}</strong></td>
+      <td>${floor}階</td>
+      <td>${isUsed
+        ? '<span style="color:var(--red);font-weight:500">貸出中</span>'
+        : '<span style="color:var(--green);font-weight:500">空き</span>'}</td>
+      <td style="font-size:13px">${isUsed ? userLabel : '<span style="color:var(--ash)">—</span>'}</td>
+    </tr>`;
+  }).join('');
+}
+
+
+
+
+
+function renderParkingSummary() {
+  const data = getData();
+  const buildings = {};
+  for (const [id, r] of Object.entries(data.residents)) {
+    if (!buildings[r.building]) buildings[r.building] = [];
+    buildings[r.building].push({id, room: r.room, parking: r.parking});
+  }
+
+  const html = Object.keys(buildings).sort().map(b => `
+    <h4 style="font-size:13px;letter-spacing:2px;color:var(--ash);margin:16px 0 8px">${b}号棟</h4>
+    <table class="data-table" style="margin-bottom:12px">
+      <thead><tr><th>部屋</th><th>居住者ID</th><th>駐車場番号</th></tr></thead>
+      <tbody>
+        ${buildings[b].sort((a,b)=>a.room.localeCompare(b.room)).map(r=>`
+          <tr><td>${r.room}号室</td><td>${r.id}</td><td>${r.parking||'<span style="color:var(--ash)">未設定</span>'}</td></tr>
+        `).join('')}
+      </tbody>
+    </table>
+  `).join('');
+
+  document.getElementById('parking-summary').innerHTML = html || '<p style="color:var(--ash);font-size:13px">居住者が登録されていません</p>';
+}
+
+function renderAdminTable() {
+  const data = getData();
+  const tbody = document.getElementById('admin-table-body');
+  tbody.innerHTML = Object.keys(data.admins).map(id => `
+    <tr>
+      <td><strong>${id}</strong></td>
+      <td>
+        ${id !== 'admin' ? `<button class="btn-danger" onclick="deleteAdmin('${id}')">削除</button>` : '<span style="color:var(--ash);font-size:12px">メイン管理者</span>'}
+      </td>
+    </tr>
+  `).join('');
+}
+
+function addAdmin() {
+  const id = document.getElementById('admin-add-id').value.trim();
+  const pw = document.getElementById('admin-add-pw').value;
+  if (!id || !pw) { alert('IDとパスワードを入力してください'); return; }
+  const data = getData();
+  data.admins[id] = { password: pw, isAdmin: true };
+  saveData(data);
+  document.getElementById('admin-add-id').value = '';
+  document.getElementById('admin-add-pw').value = '';
+  document.getElementById('admin-add-success').style.display = 'block';
+  setTimeout(()=>document.getElementById('admin-add-success').style.display='none', 3000);
+  renderAdminTable();
+}
+
+function deleteAdmin(id) {
+  if (!confirm(id + ' を削除しますか？')) return;
+  const data = getData();
+  delete data.admins[id];
+  saveData(data);
+  renderAdminTable();
+}
+
+// ===== TABS =====
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById('tab-' + name).classList.add('active');
+}
+
+// Enter key login
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter' && document.getElementById('page-login').classList.contains('active')) {
+    doLogin();
+  }
+});
+
+function showQR() {
+  const data = getData();
+  const r = data.residents[currentUser];
+  if (!r || !r.parking) return;
+  const num = r.parking;
+  document.getElementById('qr-number').textContent = num;
+  document.getElementById('qr-info').textContent =
+    r.building + '号棟 ' + r.room + '号室 / 居住者ID: ' + currentUser;
+
+  const qrEl = document.getElementById('qr-code');
+  qrEl.innerHTML = '';
+  const text = '駐車場:' + num + ' ' + r.building + '号棟' + r.room + '号室 ' + currentUser;
+  const canvas = makeQRCanvas(text, 5);
+  qrEl.appendChild(canvas);
+
+  const modal = document.getElementById('qr-modal');
+  modal.style.display = 'flex';
+}
+
+
+function closeQR() {
+  document.getElementById('qr-modal').style.display = 'none';
+}
+
+function resetAndReload() {
+  if (confirm('localStorageのデータをリセットして全号棟（323戸）の初期データを読み込みます。現在のデータは消えます。よろしいですか？')) {
+    localStorage.removeItem('mansion_data');
+    location.reload();
+  }
+}
+
+// モーダル背景クリックで閉じる
+document.getElementById('qr-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeQR();
+});
+
+// Init display
+showPage('top');
+</script>
+<!-- QR Modal -->
+<div id="qr-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:1000;align-items:center;justify-content:center;">
+  <div style="background:white;padding:36px 32px;max-width:320px;width:90%;text-align:center;position:relative">
+    <button onclick="closeQR()" style="position:absolute;top:12px;right:16px;background:none;border:none;font-size:20px;cursor:pointer;color:var(--ash)">✕</button>
+    <p style="font-size:11px;letter-spacing:3px;color:var(--ash);margin-bottom:6px">PARKING NO.</p>
+    <p id="qr-number" style="font-family:'Noto Serif JP',serif;font-size:36px;font-weight:600;color:var(--ink);margin-bottom:20px"></p>
+    <div id="qr-code" style="display:flex;justify-content:center;margin-bottom:20px"></div>
+    <p id="qr-info" style="font-size:12px;color:var(--ash);line-height:1.6"></p>
+  </div>
+</div>
+</body>
+</html>
