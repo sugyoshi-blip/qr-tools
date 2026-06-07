@@ -3,9 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>QRコード生成 AES v1</title>
+<title>QRコード生成 AES v2</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
-<script src="https://unpkg.com/qrcode@1.5.3/build/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <style>
   body { background: #f5f0e8; font-family: sans-serif; padding: 20px; max-width: 480px; margin: 0 auto; }
   h2 { text-align: center; margin-bottom: 20px; color: #333; }
@@ -13,7 +13,7 @@
   input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px; font-size: 16px; margin-top: 4px; box-sizing: border-box; }
   button { display: block; width: 100%; margin-top: 20px; padding: 14px; background: #222; color: white; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; }
   #qr-area { text-align: center; margin-top: 24px; }
-  #qr-area canvas { border: 1px solid #ccc; border-radius: 8px; }
+  #qr-canvas-wrap { display: inline-block; padding: 12px; background: white; border-radius: 8px; }
   #info { text-align: center; margin-top: 8px; font-size: 13px; color: #666; }
   #save-btn { display: none; background: #8B4513; margin-top: 12px; }
 </style>
@@ -39,12 +39,6 @@
 <script>
 const SECRET = 'y37991291K1';
 
-function encrypt(data) {
-  const json = JSON.stringify(data);
-  const encrypted = CryptoJS.AES.encrypt(json, SECRET).toString();
-  return encrypted;
-}
-
 function generate() {
   const room = document.getElementById('room').value.trim();
   const phone = document.getElementById('phone').value.trim();
@@ -52,24 +46,36 @@ function generate() {
   if (!room || !phone) { alert('部屋番号と電話番号は必須です'); return; }
 
   const data = { room, phone, name };
-  const encrypted = encrypt(data);
+  const json = JSON.stringify(data);
+  const encrypted = CryptoJS.AES.encrypt(json, SECRET).toString();
 
   const area = document.getElementById('qr-area');
-  area.innerHTML = '<canvas id="qr-canvas"></canvas>';
+  area.innerHTML = '<div id="qr-canvas-wrap"><div id="qr-canvas"></div></div>';
 
-  QRCode.toCanvas(document.getElementById('qr-canvas'), encrypted, { width: 240, margin: 2 }, (err) => {
-    if (err) { alert('QR生成エラー: ' + err); return; }
-    document.getElementById('info').textContent = `ROOM: ${room} | TEL: ${phone}${name ? ' | ' + name : ''}`;
-    document.getElementById('save-btn').style.display = 'block';
+  new QRCode(document.getElementById('qr-canvas'), {
+    text: encrypted,
+    width: 240,
+    height: 240,
+    correctLevel: QRCode.CorrectLevel.M
   });
+
+  document.getElementById('info').textContent = `ROOM: ${room} | TEL: ${phone}${name ? ' | ' + name : ''}`;
+  document.getElementById('save-btn').style.display = 'block';
 }
 
 function saveQR() {
-  const canvas = document.getElementById('qr-canvas');
-  if (!canvas) return;
+  const img = document.querySelector('#qr-canvas img');
+  const canvas = document.querySelector('#qr-canvas canvas');
   const link = document.createElement('a');
   link.download = 'qrcode.png';
-  link.href = canvas.toDataURL();
+  if (canvas) {
+    link.href = canvas.toDataURL();
+  } else if (img) {
+    link.href = img.src;
+  } else {
+    alert('保存できません');
+    return;
+  }
   link.click();
 }
 </script>
