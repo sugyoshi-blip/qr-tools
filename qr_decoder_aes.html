@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>QR解読 AES v1</title>
+<title>QR解読 AES v2</title>
 <script src="https://unpkg.com/jsqr@1.4.0/dist/jsQR.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
 <style>
@@ -68,7 +68,7 @@
 
 <div id="scanner-view">
   <div class="app-bar">
-    🔐 QR解読 <span class="version">AES v1</span>
+    🔐 QR解読 <span class="version">AES v2</span>
   </div>
   <div class="camera-wrap">
     <video id="video" autoplay playsinline muted></video>
@@ -148,20 +148,32 @@ function scanLoop() {
 }
 
 function decodeData(text) {
-  // AES復号を試みる
+  // AES復号（CryptoJS）
   try {
     const bytes = CryptoJS.AES.decrypt(text, SECRET);
-    const json = bytes.toString(CryptoJS.enc.Utf8);
-    if (json) return JSON.parse(json);
+    const decrypted = bytes.toString(CryptoJS.enc.Utf8);
+    if (decrypted && decrypted.length > 0) {
+      const json = JSON.parse(decrypted);
+      if (json && typeof json === 'object') return json;
+    }
   } catch (_) {}
-  // 旧形式（Base64）も対応
+
+  // 旧形式：UTF-8対応Base64
   try {
-    const decoded = decodeURIComponent(atob(text).split('').map(c =>
-      '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
-    ).join(''));
-    return JSON.parse(decoded);
+    const decoded = decodeURIComponent(
+      atob(text).split('').map(c =>
+        '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
+      ).join('')
+    );
+    const json = JSON.parse(decoded);
+    if (json && typeof json === 'object') return json;
   } catch (_) {}
-  try { return JSON.parse(text); } catch (_) {}
+
+  // プレーンJSON
+  try {
+    return JSON.parse(text);
+  } catch (_) {}
+
   return null;
 }
 
