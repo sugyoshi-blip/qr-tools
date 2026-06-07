@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>QRコード生成 AES v2</title>
+<title>QRコード生成 AES v3</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <style>
@@ -13,13 +13,13 @@
   input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px; font-size: 16px; margin-top: 4px; box-sizing: border-box; }
   button { display: block; width: 100%; margin-top: 20px; padding: 14px; background: #222; color: white; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; }
   #qr-area { text-align: center; margin-top: 24px; }
-  #qr-canvas-wrap { display: inline-block; padding: 12px; background: white; border-radius: 8px; }
+  #qr-canvas-wrap { display: inline-block; padding: 16px; background: white; border-radius: 8px; border: 1px solid #ccc; }
   #info { text-align: center; margin-top: 8px; font-size: 13px; color: #666; }
   #save-btn { display: none; background: #8B4513; margin-top: 12px; }
 </style>
 </head>
 <body>
-<h2>🔐 QRコード生成 AES</h2>
+<h2>🔐 QRコード生成 AES v3</h2>
 
 <label>部屋番号</label>
 <input id="room" type="text" placeholder="例: 61-201">
@@ -56,6 +56,8 @@ function generate() {
     text: encrypted,
     width: 240,
     height: 240,
+    colorDark: '#000000',
+    colorLight: '#ffffff',
     correctLevel: QRCode.CorrectLevel.M
   });
 
@@ -64,18 +66,40 @@ function generate() {
 }
 
 function saveQR() {
-  const img = document.querySelector('#qr-canvas img');
-  const canvas = document.querySelector('#qr-canvas canvas');
-  const link = document.createElement('a');
-  link.download = 'qrcode.png';
-  if (canvas) {
-    link.href = canvas.toDataURL();
-  } else if (img) {
-    link.href = img.src;
-  } else {
-    alert('保存できません');
-    return;
+  // canvasに白背景付きで描画して保存
+  const qrCanvas = document.querySelector('#qr-canvas canvas');
+  const qrImg = document.querySelector('#qr-canvas img');
+
+  const saveCanvas = document.createElement('canvas');
+  const padding = 20;
+  const size = 240;
+  saveCanvas.width = size + padding * 2;
+  saveCanvas.height = size + padding * 2 + 30;
+  const ctx = saveCanvas.getContext('2d');
+
+  // 白背景
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, saveCanvas.width, saveCanvas.height);
+
+  // QRコード描画
+  if (qrCanvas) {
+    ctx.drawImage(qrCanvas, padding, padding, size, size);
+  } else if (qrImg) {
+    ctx.drawImage(qrImg, padding, padding, size, size);
   }
+
+  // テキスト描画
+  const room = document.getElementById('room').value.trim();
+  const phone = document.getElementById('phone').value.trim();
+  const name = document.getElementById('name').value.trim();
+  ctx.fillStyle = '#333333';
+  ctx.font = '13px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText(`ROOM: ${room}  TEL: ${phone}${name ? '  ' + name : ''}`, saveCanvas.width / 2, size + padding + 20);
+
+  const link = document.createElement('a');
+  link.download = `qr_${room}.png`;
+  link.href = saveCanvas.toDataURL('image/png');
   link.click();
 }
 </script>
