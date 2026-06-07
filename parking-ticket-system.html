@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>臨時駐車票管理システム</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@300;400;600&family=Noto+Sans+JP:wght@300;400;500;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#1a1a2e;--ash:#4a4a6a;--mist:#f5f3ef;--paper:#fdfcfa;--accent:#8b6f47;--gold:#c8a96e;--red:#c0392b;--green:#27ae60;--blue:#2563eb;--border:#ddd8d0;--surface:#f9f7f4;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Noto Sans JP',sans-serif;background:var(--paper);color:var(--ink);min-height:100vh;}
+.page{display:none;min-height:100vh;}
+.page.active{display:block;}
+/* HEADER */
+.sys-header{background:var(--ink);color:#fff;padding:12px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+.sys-header-title{font-size:14px;font-weight:700;letter-spacing:.08em;color:var(--gold);}
+.sys-header-user{font-size:12px;color:rgba(255,255,255,.6);}
+.btn-hdr-logout{font-size:11px;background:none;border:1px solid rgba(255,255,255,.3);color:rgba(255,255,255,.7);padding:4px 10px;border-radius:4px;cursor:pointer;}
+.btn-hdr-logout:hover{border-color:var(--red);color:var(--red);}
+/* LOGIN */
+#page-login{background:var(--paper);}
+#page-login.active{display:flex;align-items:center;justify-content:center;}
+.login-box{background:#fff;border:1px solid var(--border);border-radius:12px;padding:36px 28px;width:100%;max-width:360px;box-shadow:0 4px 24px rgba(0,0,0,.08);}
+.login-logo{text-align:center;margin-bottom:24px;}
+.login-logo h1{font-family:'Noto Serif JP',serif;font-size:20px;color:var(--ink);margin-bottom:4px;}
+.login-logo p{font-size:12px;color:var(--ash);letter-spacing:.05em;}
+/* FORM */
+.form-group{margin-bottom:14px;}
+.form-group label{display:block;font-size:12px;color:var(--ash);margin-bottom:5px;font-weight:500;}
+.form-group input,.form-group select{width:100%;border:1px solid var(--border);border-radius:7px;padding:10px 12px;font-size:14px;font-family:inherit;background:#fff;color:var(--ink);outline:none;transition:border-color .2s;}
+.form-group input:focus,.form-group select:focus{border-color:var(--accent);}
+/* BUTTONS */
+.btn{display:block;width:100%;padding:12px;border:none;border-radius:8px;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;transition:opacity .15s,transform .1s;letter-spacing:.03em;}
+.btn:active{transform:scale(.98);}
+.btn-primary{background:var(--ink);color:#fff;}
+.btn-primary:hover{background:#2d2d4e;}
+.btn-success{background:var(--green);color:#fff;}
+.btn-warn{background:#f59e0b;color:#fff;}
+.btn-danger{background:var(--red);color:#fff;}
+.btn-ghost{background:none;border:1px solid var(--border);color:var(--ash);}
+.btn-ghost:hover{border-color:var(--accent);color:var(--accent);}
+.btn-gold{background:var(--gold);color:var(--ink);}
+.btn-sm{padding:5px 12px;font-size:12px;width:auto;display:inline-block;border-radius:5px;}
+.row-btn{display:flex;gap:8px;}
+.row-btn .btn{flex:1;}
+/* CARD */
+.card{background:#fff;border:1px solid var(--border);border-radius:10px;padding:20px;margin-bottom:16px;}
+.card-title{font-size:12px;font-weight:700;color:var(--ash);letter-spacing:.1em;text-transform:uppercase;border-bottom:1px solid var(--border);padding-bottom:10px;margin-bottom:16px;}
+.page-body{padding:20px 16px;max-width:480px;margin:0 auto;}
+/* BADGE */
+.badge{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px;}
+.badge-ok{background:#dcfce7;color:#166534;}
+.badge-used{background:#fee2e2;color:#991b1b;}
+.badge-locked{background:#fef3c7;color:#92400e;}
+/* SPACE GRID */
+.space-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:12px 0;}
+.space-cell{aspect-ratio:1;border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:12px;font-weight:700;cursor:default;border:2px solid transparent;transition:all .15s;background:var(--surface);color:var(--ash);user-select:none;}
+.space-cell.available{background:#eff6ff;border-color:#bfdbfe;color:var(--blue);cursor:pointer;}
+.space-cell.available:hover{background:#dbeafe;border-color:var(--blue);transform:scale(1.05);}
+.space-cell.selected{background:var(--blue);color:#fff;border-color:var(--blue);}
+.space-cell.occupied{background:#fef2f2;border-color:#fca5a5;color:var(--red);opacity:.7;}
+.space-icon{font-size:16px;line-height:1;}
+.space-num{font-size:10px;margin-top:2px;}
+/* ACTIVE TICKET */
+.active-ticket{background:linear-gradient(135deg,#1a1a2e,#2d2d4e);color:#fff;border-radius:10px;padding:18px;margin-bottom:16px;}
+.ticket-label{font-size:10px;color:var(--gold);letter-spacing:.1em;font-weight:700;margin-bottom:6px;}
+.ticket-num{font-family:'Share Tech Mono',monospace;font-size:26px;color:var(--gold);letter-spacing:.2em;}
+.ticket-detail{font-size:12px;color:rgba(255,255,255,.7);margin-top:6px;line-height:1.8;}
+/* QR */
+.qr-wrap{display:flex;flex-direction:column;align-items:center;padding:16px 0;}
+.qr-wrap canvas{border-radius:8px;background:#fff;padding:10px;}
+.qr-meta{margin-top:12px;text-align:center;}
+.qr-num{font-family:'Share Tech Mono',monospace;font-size:20px;color:var(--accent);letter-spacing:.15em;}
+.qr-sub{font-size:12px;color:var(--ash);margin-top:4px;line-height:1.8;}
+/* ALERT */
+.alert{padding:11px 14px;border-radius:8px;font-size:13px;margin-bottom:14px;line-height:1.5;}
+.alert-warn{background:#fffbeb;border:1px solid #fcd34d;color:#92400e;}
+.alert-danger{background:#fef2f2;border:1px solid #fca5a5;color:var(--red);}
+.alert-ok{background:#f0fdf4;border:1px solid #86efac;color:#166534;}
+.alert-info{background:#eff6ff;border:1px solid #93c5fd;color:#1e40af;}
+/* TABS */
+.tabs{display:flex;gap:4px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:4px;margin-bottom:16px;}
+.tab{flex:1;padding:8px 4px;font-size:12px;font-weight:700;text-align:center;border-radius:7px;cursor:pointer;color:var(--ash);border:none;background:none;font-family:inherit;}
+.tab.active{background:var(--ink);color:#fff;}
+/* TABLE */
+.tbl-wrap{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;font-size:12px;}
+th{color:var(--ash);font-weight:600;padding:6px 8px;text-align:left;border-bottom:1px solid var(--border);white-space:nowrap;}
+td{padding:8px 8px;border-bottom:1px solid var(--border);vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+/* MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:200;align-items:center;justify-content:center;padding:20px;}
+.modal-overlay.open{display:flex;}
+.modal{background:#fff;border:1px solid var(--border);border-radius:14px;padding:24px;width:100%;max-width:380px;}
+.modal-title{font-size:15px;font-weight:700;margin-bottom:16px;color:var(--ink);}
+.divider{border:none;border-top:1px solid var(--border);margin:16px 0;}
+.mt8{margin-top:8px;}
+.mt16{margin-top:16px;}
+.text-center{text-align:center;}
+.empty-state{text-align:center;padding:28px 0;color:var(--ash);font-size:13px;}
+.empty-state .icon{font-size:32px;margin-bottom:8px;}
+.err-msg{display:none;background:#fef2f2;border:1px solid #fca5a5;color:var(--red);font-size:12px;padding:10px 12px;border-radius:6px;margin-bottom:14px;}
+</style>
+</head>
+<body>
+
+<div id="sys-header" class="sys-header" style="display:none">
+  <div class="sys-header-title">&#x1F697; 臨時駐車票管理</div>
+  <div style="display:flex;align-items:center;gap:10px">
+    <span class="sys-header-user" id="hdr-user"></span>
+    <button class="btn-hdr-logout" onclick="doLogout()">ログアウト</button>
+  </div>
+</div>
+
+<!-- LOGIN -->
+<div id="page-login" class="page active">
+  <div class="login-box">
+    <div class="login-logo">
+      <div style="font-size:36px;margin-bottom:6px">&#x1F697;</div>
+      <h1>臨時駐車票管理</h1>
+      <p>マンション管理組合</p>
+    </div>
+    <div class="err-msg" id="login-error">IDまたはパスワードが正しくありません</div>
+    <div class="form-group">
+      <label>居住者ID&#xFF08;例&#xFF1A;61101QB&#xFF09;</label>
+      <input id="login-id" type="text" placeholder="IDを入力" autocomplete="username">
+    </div>
+    <div class="form-group">
+      <label>パスワード</label>
+      <input id="login-pw" type="password" placeholder="パスワードを入力" autocomplete="current-password">
+    </div>
+    <button class="btn btn-primary" onclick="doLogin()">ログイン</button>
+    <div class="divider"></div>
+    <div style="font-size:11px;color:var(--ash);text-align:center;margin-bottom:10px">管理者・理事の方はこちら</div>
+    <button class="btn btn-ghost" onclick="openModal('modal-admin-login')">管理者 / 理事ログイン</button>
+  </div>
+</div>
+
+<!-- RESIDENT -->
+<div id="page-resident" class="page">
+  <div class="page-body">
+    <div id="r-locked-alert" class="alert alert-danger" style="display:none">
+      &#x26A0;&#xFE0F; 未返却の駐車票があります。新規申請はできません。管理人または理事にご連絡ください。
+    </div>
+    <div id="r-active-section" style="display:none">
+      <div class="active-ticket">
+        <div class="ticket-label">&#x25B6; 現在利用中の駐車票</div>
+        <div class="ticket-num" id="r-active-num">&#x2014;</div>
+        <div class="ticket-detail" id="r-active-detail"></div>
+      </div>
+      <div class="row-btn">
+        <button class="btn btn-gold" onclick="showQRModal()">QRコード表示</button>
+        <button class="btn btn-ghost" onclick="openReturnModal()">返　却</button>
+      </div>
+      <div class="divider"></div>
+    </div>
+    <div id="r-apply-section">
+      <div class="card">
+        <div class="card-title">臨時駐車票 新規申請</div>
+        <div class="form-group">
+          <label>氏名</label>
+          <input id="a-name" type="text" placeholder="山田 太郎">
+        </div>
+        <div class="form-group">
+          <label>車のナンバー</label>
+          <input id="a-car" type="text" placeholder="品川 300 あ 1234">
+        </div>
+        <div class="form-group">
+          <label>返却予定日&#xFF08;最大2日後&#xFF09;</label>
+          <select id="a-date"></select>
+        </div>
+        <div class="form-group">
+          <label>駐車スペース選択&#xFF08;&#x1F535; &#x3D; 空き&#xFF09;</label>
+          <div class="space-grid" id="r-space-grid"></div>
+          <div id="r-space-msg" style="font-size:12px;color:var(--ash);margin-top:4px"></div>
+        </div>
+        <button class="btn btn-primary" onclick="doApply()">申請・駐車票発行</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ADMIN -->
+<div id="page-admin" class="page">
+  <div class="page-body">
+    <div class="tabs">
+      <button class="tab active" onclick="adminTab('status')">稼働状況</button>
+      <button class="tab" onclick="adminTab('history')">履　歴</button>
+      <button class="tab" onclick="adminTab('users')">利用者</button>
+      <button class="tab" onclick="adminTab('proxy')">代理申請</button>
+    </div>
+    <div id="at-status">
+      <div class="card">
+        <div class="card-title">スペース状況</div>
+        <div class="space-grid" id="admin-space-grid"></div>
+        <div style="font-size:11px;color:var(--ash);margin-top:8px">&#x1F535;空き　&#x1F697;使用中</div>
+      </div>
+      <div class="card">
+        <div class="card-title">現在の貸出一覧</div>
+        <div class="tbl-wrap" id="admin-active-tbl"></div>
+      </div>
+    </div>
+    <div id="at-history" style="display:none">
+      <div class="card">
+        <div class="card-title">利用履歴&#xFF08;全件&#xFF09;</div>
+        <div class="tbl-wrap" id="admin-hist-tbl"></div>
+      </div>
+    </div>
+    <div id="at-users" style="display:none">
+      <div class="card">
+        <div class="card-title">利用者・ロック管理</div>
+        <div id="admin-users-list"></div>
+      </div>
+    </div>
+    <div id="at-proxy" style="display:none">
+      <div class="card">
+        <div class="card-title">代理申請&#xFF08;スマホ非対応者向け&#xFF09;</div>
+        <div class="alert alert-info">居住者IDは既存の管理サイトと同じIDです。</div>
+        <div class="form-group">
+          <label>居住者ID&#xFF08;例&#xFF1A;61101QB&#xFF09;</label>
+          <input id="p-id" type="text" placeholder="61101QB">
+        </div>
+        <div class="form-group">
+          <label>氏名</label>
+          <input id="p-name" type="text" placeholder="山田 太郎">
+        </div>
+        <div class="form-group">
+          <label>車のナンバー</label>
+          <input id="p-car" type="text" placeholder="品川 300 あ 1234">
+        </div>
+        <div class="form-group">
+          <label>返却予定日</label>
+          <select id="p-date"></select>
+        </div>
+        <div class="form-group">
+          <label>駐車スペース&#xFF08;&#x1F535; &#x3D; 空き&#xFF09;</label>
+          <div class="space-grid" id="proxy-space-grid"></div>
+          <div id="p-space-msg" style="font-size:12px;color:var(--ash);margin-top:4px"></div>
+        </div>
+        <button class="btn btn-warn" onclick="doProxy()">代理で駐車票を発行</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: QR -->
+<div class="modal-overlay" id="modal-qr">
+  <div class="modal text-center">
+    <div class="modal-title">&#x1F3AB; 駐車票 QRコード</div>
+    <div class="qr-wrap">
+      <canvas id="qr-canvas" width="200" height="200"></canvas>
+      <div class="qr-meta">
+        <div class="qr-num" id="qr-num"></div>
+        <div class="qr-sub" id="qr-sub"></div>
+      </div>
+    </div>
+    <div class="alert alert-info" style="font-size:12px;text-align:left">
+      このQRコードを宅配ボックスにかざして駐車票を取り出してください。返却時も同様にスキャンしてください。
+    </div>
+    <button class="btn btn-ghost mt8" onclick="closeModal('modal-qr')">閉じる</button>
+  </div>
+</div>
+
+<!-- MODAL: RETURN -->
+<div class="modal-overlay" id="modal-return">
+  <div class="modal">
+    <div class="modal-title">&#x2705; 返却確認</div>
+    <div id="modal-return-info" style="font-size:13px;color:var(--ash);line-height:1.8;margin-bottom:16px"></div>
+    <div class="row-btn">
+      <button class="btn btn-success" onclick="confirmReturn()">返却する</button>
+      <button class="btn btn-ghost" onclick="closeModal('modal-return')">キャンセル</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: ADMIN LOGIN -->
+<div class="modal-overlay" id="modal-admin-login">
+  <div class="modal">
+    <div class="modal-title">&#x1F510; 管理者 / 理事ログイン</div>
+    <div class="form-group">
+      <label>管理者ID</label>
+      <input id="al-id" type="text" placeholder="admin など">
+    </div>
+    <div class="form-group">
+      <label>パスワード</label>
+      <input id="al-pw" type="password" placeholder="パスワード">
+    </div>
+    <div class="err-msg" id="al-err">IDまたはパスワードが違います</div>
+    <div class="row-btn">
+      <button class="btn btn-primary" onclick="doAdminLogin()">ログイン</button>
+      <button class="btn btn-ghost" onclick="closeModal('modal-admin-login')">戻る</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: SUCCESS -->
+<div class="modal-overlay" id="modal-success">
+  <div class="modal text-center">
+    <div style="font-size:36px;margin-bottom:6px">&#x1F389;</div>
+    <div class="modal-title">駐車票を発行しました</div>
+    <div class="qr-wrap">
+      <canvas id="qr-canvas2" width="200" height="200"></canvas>
+      <div class="qr-meta">
+        <div class="qr-num" id="qr-num2"></div>
+        <div class="qr-sub" id="qr-sub2"></div>
+      </div>
+    </div>
+    <div class="alert alert-info" style="font-size:12px;text-align:left">
+      このQRコードを宅配ボックスにかざして駐車票を取り出してください。
+    </div>
+    <button class="btn btn-primary mt8" onclick="closeModal('modal-success')">確認しました</button>
+  </div>
+</div>
+
+<script>
+// ==================================================
+// STORAGE
+// mansion_data: 既存管理サイト (residents / admins)
+// parking_data_v1: 駐車票システム独自
+// ==================================================
+function getMData(){try{const d=localStorage.getItem('mansion_data');return d?JSON.parse(d):null;}catch(e){return null;}}
+const PK='parking_data_v1';
+function getPD(){try{const d=localStorage.getItem(PK);if(d)return JSON.parse(d);}catch(e){}return{spaces:Array.from({length:20},(_,i)=>({id:i+1,occupied:false,ticketId:null})),tickets:[],history:[],lockedUsers:{}};}
+function savePD(d){localStorage.setItem(PK,JSON.stringify(d));}
+
+var session=null,rSel=null,pSel=null,pendingRet=null;
+
+// LOGIN
+function doLogin(){
+  const idRaw=document.getElementById('login-id').value.trim();
+  const pw=document.getElementById('login-pw').value;
+  const err=document.getElementById('login-error');
+  if(!idRaw||!pw){err.style.display='block';err.textContent='IDとパスワードを入力してください';return;}
+  const md=getMData();
+  if(md){
+    const idU=idRaw.toUpperCase();
+    if(md.residents[idU]&&md.residents[idU].password===pw){
+      const r=md.residents[idU];
+      session={type:'resident',id:idU,label:r.building+'号棟'+r.room+'号室'};
+      err.style.display='none';
+      initResident();showPage('resident');updateHeader();return;
+    }
+  } else {
+    // mansion_data未初期化時: parking_dataにローカルユーザー作成
+    const pd=getPD();
+    if(!pd.localUsers)pd.localUsers={};
+    if(!pd.localUsers[idRaw]){pd.localUsers[idRaw]={pw};savePD(pd);}
+    if(pd.localUsers[idRaw].pw===pw){
+      session={type:'resident',id:idRaw,label:idRaw};
+      err.style.display='none';
+      initResident();showPage('resident');updateHeader();return;
+    }
+  }
+  err.style.display='block';err.textContent='IDまたはパスワードが正しくありません';
+}
+
+function doAdminLogin(){
+  const id=document.getElementById('al-id').value.trim();
+  const pw=document.getElementById('al-pw').value;
+  const err=document.getElementById('al-err');
+  const md=getMData();
+  if(md&&md.admins[id]&&md.admins[id].password===pw){
+    session={type:'admin',id,label:'管理者 ['+id+']'};
+    err.style.display='none';
+    closeModal('modal-admin-login');
+    initAdmin();showPage('admin');updateHeader();return;
+  }
+  err.style.display='block';
+}
+
+function doLogout(){
+  session=null;rSel=null;pSel=null;updateHeader();showPage('login');
+  document.getElementById('login-id').value='';
+  document.getElementById('login-pw').value='';
+}
+
+// RESIDENT
+function initResident(){
+  const pd=getPD();const uid=session.id;
+  const locked=pd.lockedUsers[uid];
+  const active=pd.tickets.find(function(t){return t.userId===uid;});
+  document.getElementById('r-locked-alert').style.display=locked?'block':'none';
+  var aS=document.getElementById('r-active-section');
+  var apS=document.getElementById('r-apply-section');
+  if(active){
+    aS.style.display='block';apS.style.display='none';
+    document.getElementById('r-active-num').textContent='#'+active.ticketId;
+    document.getElementById('r-active-detail').innerHTML='スペース: '+active.spaceId+'番　返却予定: '+active.returnDate+'<br>'+active.name+' / '+active.car;
+  } else {
+    aS.style.display='none';apS.style.display=locked?'none':'block';
+  }
+  fillDateSelect('a-date');rSel=null;
+  renderSpaceGrid('r-space-grid',function(id){rSel=id;document.getElementById('r-space-msg').textContent='✅ '+id+'番を選択しました';});
+}
+
+function doApply(){
+  var name=document.getElementById('a-name').value.trim();
+  var car=document.getElementById('a-car').value.trim();
+  var date=document.getElementById('a-date').value;
+  if(!name||!car){alert('氏名と車のナンバーを入力してください');return;}
+  if(!rSel){alert('駐車スペースを選択してください');return;}
+  issueTicket(session.id,name,car,date,rSel);rSel=null;initResident();
+}
+
+// ADMIN
+function initAdmin(){
+  renderAdminStatus();fillDateSelect('p-date');pSel=null;
+  renderSpaceGrid('proxy-space-grid',function(id){pSel=id;document.getElementById('p-space-msg').textContent='✅ '+id+'番を選択しました';});
+}
+
+function adminTab(t){
+  ['status','history','users','proxy'].forEach(function(n){
+    document.getElementById('at-'+n).style.display=n===t?'block':'none';
+  });
+  document.querySelectorAll('.tab').forEach(function(el,i){
+    el.classList.toggle('active',['status','history','users','proxy'][i]===t);
+  });
+  if(t==='status')renderAdminStatus();
+  if(t==='history')renderAdminHistory();
+  if(t==='users')renderAdminUsers();
+}
+
+function renderAdminStatus(){
+  var pd=getPD();
+  var grid=document.getElementById('admin-space-grid');grid.innerHTML='';
+  pd.spaces.forEach(function(sp){
+    var c=document.createElement('div');
+    c.className='space-cell '+(sp.occupied?'occupied':'available');
+    c.style.cursor='default';
+    c.innerHTML='<div class="space-icon">'+(sp.occupied?'🚗':'🔵')+'</div><div class="space-num">'+sp.id+'</div>';
+    grid.appendChild(c);
+  });
+  var wrap=document.getElementById('admin-active-tbl');
+  if(!pd.tickets.length){wrap.innerHTML='<div class="empty-state"><div class="icon">🅿️</div>現在の貸出なし</div>';return;}
+  var today=new Date();today.setHours(0,0,0,0);
+  var html='<table><thead><tr><th>票番号</th><th>ID</th><th>氏名</th><th>ナンバー</th><th>SP</th><th>返却予定</th><th>操作</th></tr></thead><tbody>';
+  pd.tickets.forEach(function(t){
+    var over=new Date(t.returnDate)<today;
+    html+='<tr><td><span style="font-family:monospace">#'+t.ticketId+'</span></td><td style="font-size:11px">'+t.userId+'</td><td>'+t.name+'</td><td style="font-size:11px">'+t.car+'</td><td>'+t.spaceId+'</td><td style="color:'+(over?'var(--red)':'inherit')+'">'+t.returnDate+'</td><td><button class="btn btn-danger btn-sm" onclick="adminForceReturn(\''+t.ticketId+'\')">強制返却</button></td></tr>';
+  });
+  wrap.innerHTML=html+'</tbody></table>';
+}
+
+function renderAdminHistory(){
+  var pd=getPD();var wrap=document.getElementById('admin-hist-tbl');
+  var hist=pd.history.slice().reverse();
+  if(!hist.length){wrap.innerHTML='<div class="empty-state"><div class="icon">📋</div>履歴なし</div>';return;}
+  var html='<table><thead><tr><th>票番号</th><th>ID</th><th>氏名</th><th>ナンバー</th><th>SP</th><th>返却予定</th><th>返却日時</th><th>状態</th></tr></thead><tbody>';
+  hist.forEach(function(t){
+    var badge=t.status==='返却済'?'<span class="badge badge-ok">返却済</span>':'<span class="badge badge-used">貸出中</span>';
+    html+='<tr><td><span style="font-family:monospace">#'+t.ticketId+'</span></td><td style="font-size:11px">'+t.userId+'</td><td>'+t.name+'</td><td style="font-size:11px">'+t.car+'</td><td>'+t.spaceId+'</td><td>'+t.returnDate+'</td><td style="font-size:11px">'+(t.returnedAt||'—')+'</td><td>'+badge+'</td></tr>';
+  });
+  wrap.innerHTML=html+'</tbody></table>';
+}
+
+function renderAdminUsers(){
+  var pd=getPD();var wrap=document.getElementById('admin-users-list');
+  var known={};
+  pd.history.forEach(function(h){known[h.userId]=true;});
+  pd.tickets.forEach(function(t){known[t.userId]=true;});
+  var uids=Object.keys(known);
+  if(!uids.length){wrap.innerHTML='<div class="empty-state"><div class="icon">👤</div>利用者なし</div>';return;}
+  var html='';
+  uids.forEach(function(uid){
+    var active=pd.tickets.find(function(t){return t.userId===uid;});
+    var locked=pd.lockedUsers[uid];
+    var badge=locked?'<span class="badge badge-locked">🔒 ロック</span>':active?'<span class="badge badge-used">貸出中</span>':'<span class="badge badge-ok">正常</span>';
+    html+='<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)"><div><div style="font-size:13px;font-weight:700">'+uid+'</div>'+(active?'<div style="font-size:11px;color:var(--ash)">SP:'+active.spaceId+' 返却:'+active.returnDate+'</div>':'')+'</div><div style="display:flex;align-items:center;gap:8px">'+badge+(locked?'<button class="btn btn-success btn-sm" onclick="unlockUser(\''+uid+'\')">解除</button>':'')+'</div></div>';
+  });
+  wrap.innerHTML=html;
+}
+
+function adminForceReturn(ticketId){
+  if(!confirm('強制返却しますか？'))return;
+  returnTicket(ticketId,true);renderAdminStatus();renderAdminUsers();
+}
+
+function unlockUser(uid){
+  if(!confirm(uid+' のロックを解除しますか？'))return;
+  var pd=getPD();pd.lockedUsers[uid]=false;savePD(pd);renderAdminUsers();alert('ロックを解除しました');
+}
+
+function doProxy(){
+  var idRaw=document.getElementById('p-id').value.trim().toUpperCase();
+  var name=document.getElementById('p-name').value.trim();
+  var car=document.getElementById('p-car').value.trim();
+  var date=document.getElementById('p-date').value;
+  if(!idRaw||!name||!car){alert('全項目を入力してください');return;}
+  if(!pSel){alert('駐車スペースを選択してください');return;}
+  var md=getMData();
+  if(md&&!md.residents[idRaw]){alert('このIDは居住者データに存在しません');return;}
+  var pd=getPD();
+  if(pd.tickets.find(function(t){return t.userId===idRaw;})){alert('このIDはすでに駐車票を使用中です');return;}
+  if(pd.lockedUsers[idRaw]){alert('このIDはロック中です。解除してから申請してください');return;}
+  issueTicket(idRaw,name,car,date,pSel);pSel=null;
+  document.getElementById('p-id').value='';document.getElementById('p-name').value='';document.getElementById('p-car').value='';
+  renderSpaceGrid('proxy-space-grid',function(id){pSel=id;document.getElementById('p-space-msg').textContent='✅ '+id+'番を選択しました';});
+}
+
+// TICKET CORE
+function issueTicket(userId,name,car,returnDate,spaceId){
+  var pd=getPD();
+  var ticketId=String(Date.now()).slice(-6);
+  var now=new Date().toLocaleString('ja-JP');
+  var t={ticketId:ticketId,userId:userId,name:name,car:car,returnDate:returnDate,spaceId:spaceId,issuedAt:now};
+  pd.tickets.push(t);
+  var sp=pd.spaces.find(function(s){return s.id===spaceId;});
+  if(sp){sp.occupied=true;sp.ticketId=ticketId;}
+  pd.history.push(Object.assign({},t,{returnedAt:null,status:'貸出中'}));
+  savePD(pd);
+  showSuccessModal(t);
+}
+
+function returnTicket(ticketId,force){
+  var pd=getPD();
+  var idx=pd.tickets.findIndex(function(t){return t.ticketId===ticketId;});
+  if(idx===-1)return;
+  var t=pd.tickets[idx];
+  var sp=pd.spaces.find(function(s){return s.id===t.spaceId;});
+  if(sp){sp.occupied=false;sp.ticketId=null;}
+  var h=pd.history.find(function(h){return h.ticketId===ticketId;});
+  if(h){h.returnedAt=new Date().toLocaleString('ja-JP');h.status='返却済';}
+  pd.tickets.splice(idx,1);
+  pd.lockedUsers[t.userId]=false;
+  savePD(pd);
+}
+
+function openReturnModal(){
+  var pd=getPD();var t=pd.tickets.find(function(t){return t.userId===session.id;});if(!t)return;
+  pendingRet=t.ticketId;
+  document.getElementById('modal-return-info').innerHTML='駐車票 <strong>#'+t.ticketId+'</strong>（スペース'+t.spaceId+'番）を返却しますか？';
+  openModal('modal-return');
+}
+function confirmReturn(){returnTicket(pendingRet,false);closeModal('modal-return');initResident();}
+
+// QR
+function showQRModal(){
+  var pd=getPD();var t=pd.tickets.find(function(t){return t.userId===session.id;});if(!t)return;
+  renderQR('qr-canvas',t);
+  document.getElementById('qr-num').textContent='#'+t.ticketId;
+  document.getElementById('qr-sub').innerHTML='スペース: '+t.spaceId+'番　返却予定: '+t.returnDate+'<br>'+t.name+' / '+t.car;
+  openModal('modal-qr');
+}
+function showSuccessModal(t){
+  renderQR('qr-canvas2',t);
+  document.getElementById('qr-num2').textContent='#'+t.ticketId;
+  document.getElementById('qr-sub2').innerHTML='スペース: '+t.spaceId+'番　返却予定: '+t.returnDate+'<br>'+t.name+' / '+t.car;
+  openModal('modal-success');
+}
+function renderQR(cid,ticket){
+  var data=JSON.stringify({id:ticket.ticketId,u:ticket.userId,sp:ticket.spaceId,ret:ticket.returnDate});
+  drawQR(document.getElementById(cid),data);
+}
+function drawQR(canvas,text){
+  var size=canvas.width,ctx=canvas.getContext('2d');
+  ctx.fillStyle='#fff';ctx.fillRect(0,0,size,size);
+  var cs=Math.floor(size/21),off=Math.floor((size-cs*21)/2);
+  function finder(x,y){
+    ctx.fillStyle='#000';ctx.fillRect(off+x*cs,off+y*cs,7*cs,7*cs);
+    ctx.fillStyle='#fff';ctx.fillRect(off+(x+1)*cs,off+(y+1)*cs,5*cs,5*cs);
+    ctx.fillStyle='#000';ctx.fillRect(off+(x+2)*cs,off+(y+2)*cs,3*cs,3*cs);
+  }
+  finder(0,0);finder(14,0);finder(0,14);
+  var h=0x811c9dc5;
+  for(var i=0;i<text.length;i++){h^=text.charCodeAt(i);h=(h*0x01000193)&0xffffffff;}
+  h=h>>>0;ctx.fillStyle='#000';
+  for(var r=0;r<21;r++){for(var c=0;c<21;c++){
+    if((r<9&&c<9)||(r<9&&c>11)||(r>11&&c<9))continue;
+    h=(h*1664525+1013904223)&0xffffffff;
+    if(h&1)ctx.fillRect(off+c*cs,off+r*cs,cs,cs);
+  }}
+}
+
+// SPACE GRID
+function renderSpaceGrid(gridId,onSelect){
+  var pd=getPD();var grid=document.getElementById(gridId);grid.innerHTML='';
+  pd.spaces.forEach(function(sp){
+    var c=document.createElement('div');
+    c.className='space-cell '+(sp.occupied?'occupied':'available');
+    c.innerHTML='<div class="space-icon">'+(sp.occupied?'🚗':'🔵')+'</div><div class="space-num">'+sp.id+'</div>';
+    if(!sp.occupied){c.onclick=(function(id){return function(){grid.querySelectorAll('.space-cell').forEach(function(x){x.classList.remove('selected');});c.classList.add('selected');onSelect(id);};})(sp.id);}
+    grid.appendChild(c);
+  });
+}
+
+// UTILS
+function fillDateSelect(selId){
+  var sel=document.getElementById(selId);sel.innerHTML='';
+  var labels=['本日（当日返却）','翌日','翌々日'];
+  for(var i=0;i<=2;i++){
+    var d=new Date();d.setDate(d.getDate()+i);
+    var v=d.toLocaleDateString('ja-JP',{year:'numeric',month:'2-digit',day:'2-digit'}).replace(/\//g,'-');
+    var o=document.createElement('option');o.value=v;o.textContent=v+'（'+labels[i]+'）';sel.appendChild(o);
+  }
+}
+function showPage(name){
+  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');});
+  var pg=document.getElementById('page-'+name);if(!pg)return;pg.classList.add('active');
+}
+function updateHeader(){
+  var hdr=document.getElementById('sys-header');hdr.style.display=session?'flex':'none';
+  if(session)document.getElementById('hdr-user').textContent=session.label;
+}
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+
+// OVERDUE AUTO-LOCK
+function checkOverdue(){
+  var pd=getPD();var today=new Date();today.setHours(0,0,0,0);var changed=false;
+  pd.tickets.forEach(function(t){
+    var ret=new Date(t.returnDate);ret.setHours(0,0,0,0);
+    if(ret<today){pd.lockedUsers[t.userId]=true;changed=true;}
+  });
+  if(changed)savePD(pd);
+}
+
+checkOverdue();updateHeader();
+</script>
+</body>
+</html>
