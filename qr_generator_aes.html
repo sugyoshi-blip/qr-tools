@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QRコード生成 AES v1</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
+<script src="https://unpkg.com/qrcode@1.5.3/build/qrcode.min.js"></script>
+<style>
+  body { background: #f5f0e8; font-family: sans-serif; padding: 20px; max-width: 480px; margin: 0 auto; }
+  h2 { text-align: center; margin-bottom: 20px; color: #333; }
+  label { display: block; margin-top: 12px; font-size: 14px; color: #555; }
+  input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px; font-size: 16px; margin-top: 4px; box-sizing: border-box; }
+  button { display: block; width: 100%; margin-top: 20px; padding: 14px; background: #222; color: white; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; }
+  #qr-area { text-align: center; margin-top: 24px; }
+  #qr-area canvas { border: 1px solid #ccc; border-radius: 8px; }
+  #info { text-align: center; margin-top: 8px; font-size: 13px; color: #666; }
+  #save-btn { display: none; background: #8B4513; margin-top: 12px; }
+</style>
+</head>
+<body>
+<h2>🔐 QRコード生成 AES</h2>
+
+<label>部屋番号</label>
+<input id="room" type="text" placeholder="例: 61-201">
+
+<label>電話番号</label>
+<input id="phone" type="tel" placeholder="例: 03-xxxx-xxxx">
+
+<label>名前</label>
+<input id="name" type="text" placeholder="例: 大島">
+
+<button onclick="generate()">▶ QRコードを生成する</button>
+
+<div id="qr-area"></div>
+<div id="info"></div>
+<button id="save-btn" onclick="saveQR()">↓ QRコードを保存</button>
+
+<script>
+const SECRET = 'y37991291K1';
+
+function encrypt(data) {
+  const json = JSON.stringify(data);
+  const encrypted = CryptoJS.AES.encrypt(json, SECRET).toString();
+  return encrypted;
+}
+
+function generate() {
+  const room = document.getElementById('room').value.trim();
+  const phone = document.getElementById('phone').value.trim();
+  const name = document.getElementById('name').value.trim();
+  if (!room || !phone) { alert('部屋番号と電話番号は必須です'); return; }
+
+  const data = { room, phone, name };
+  const encrypted = encrypt(data);
+
+  const area = document.getElementById('qr-area');
+  area.innerHTML = '<canvas id="qr-canvas"></canvas>';
+
+  QRCode.toCanvas(document.getElementById('qr-canvas'), encrypted, { width: 240, margin: 2 }, (err) => {
+    if (err) { alert('QR生成エラー: ' + err); return; }
+    document.getElementById('info').textContent = `ROOM: ${room} | TEL: ${phone}${name ? ' | ' + name : ''}`;
+    document.getElementById('save-btn').style.display = 'block';
+  });
+}
+
+function saveQR() {
+  const canvas = document.getElementById('qr-canvas');
+  if (!canvas) return;
+  const link = document.createElement('a');
+  link.download = 'qrcode.png';
+  link.href = canvas.toDataURL();
+  link.click();
+}
+</script>
+</body>
+</html>
